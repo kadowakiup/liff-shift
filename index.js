@@ -141,24 +141,27 @@
 
 
 
+    
 window.onload = async function () {
-      await liff.init({ liffId: "2009569390-ToBfmkCN" });
+  await liff.init({ liffId: "2009569390-ToBfmkCN" });
 
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-      }
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
 
-      const profile = await liff.getProfile();
-      const userId = profile.userId;
+  const profile = await liff.getProfile();
 
-      console.log("UserID:", userId);
+  await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId: profile.userId,
+      name: profile.displayName
+    })
+  });
 
-      await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userId })
-      });
-    };
+  console.log("送信完了");
+};
