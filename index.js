@@ -171,30 +171,7 @@
 
 
 
-// window.onload = async function () {
-//   await liff.init({ liffId: "2009569390-ToBfmkCN" });
 
-//   if (!liff.isLoggedIn()) {
-//     liff.login();
-//     return;
-//   }
-
-//   const profile = await liff.getProfile();
-
-//   // ★ここを修正（headers消す）
-//   await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
-//     method: "POST",
-//     body: JSON.stringify({
-//       userId: profile.userId,
-//       name: profile.displayName
-//     })
-//   });
-
-//   console.log("送信完了");
-// };
-
-
-// LIFF初期化とボタン設定
 window.onload = async function () {
   try {
     // LIFF初期化
@@ -206,23 +183,20 @@ window.onload = async function () {
       return;
     }
 
-    // ボタン押下で送信する設定
-    const sendButton = document.getElementById("sendButton");
+    const updateButton = document.getElementById("updateButton");
     const resultDiv = document.getElementById("result");
 
-    sendButton.addEventListener("click", async () => {
+    // ボタン押下でAnycrossに送信
+    updateButton.addEventListener("click", async () => {
       try {
-        // プロフィール取得
         const profile = await liff.getProfile();
 
-        // 送信データ
         const payload = {
           userId: profile.userId,
-          name: profile.displayName,
-          date: document.getElementById("date").value || null
+          name: profile.displayName
         };
 
-        // GASにPOST（シンプルリクエストでCORS回避）
+        // GASにPOST（CORS回避済みシンプルリクエスト）
         await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
           method: "POST",
           body: JSON.stringify(payload)
