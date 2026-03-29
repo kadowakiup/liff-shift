@@ -171,24 +171,74 @@
 
 
 
+// window.onload = async function () {
+//   await liff.init({ liffId: "2009569390-ToBfmkCN" });
+
+//   if (!liff.isLoggedIn()) {
+//     liff.login();
+//     return;
+//   }
+
+//   const profile = await liff.getProfile();
+
+//   // ★ここを修正（headers消す）
+//   await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
+//     method: "POST",
+//     body: JSON.stringify({
+//       userId: profile.userId,
+//       name: profile.displayName
+//     })
+//   });
+
+//   console.log("送信完了");
+// };
+
+
+// LIFF初期化とボタン設定
 window.onload = async function () {
-  await liff.init({ liffId: "2009569390-ToBfmkCN" });
+  try {
+    // LIFF初期化
+    await liff.init({ liffId: "2009569390-ToBfmkCN" });
 
-  if (!liff.isLoggedIn()) {
-    liff.login();
-    return;
+    // 未ログインならログイン
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+
+    // ボタン押下で送信する設定
+    const sendButton = document.getElementById("sendButton");
+    const resultDiv = document.getElementById("result");
+
+    sendButton.addEventListener("click", async () => {
+      try {
+        // プロフィール取得
+        const profile = await liff.getProfile();
+
+        // 送信データ
+        const payload = {
+          userId: profile.userId,
+          name: profile.displayName,
+          date: document.getElementById("date").value || null
+        };
+
+        // GASにPOST（シンプルリクエストでCORS回避）
+        await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        console.log("送信完了:", payload);
+        resultDiv.textContent = "送信完了しました！";
+
+      } catch (err) {
+        console.error("送信エラー:", err);
+        resultDiv.textContent = "送信に失敗しました: " + err.message;
+      }
+    });
+
+  } catch (err) {
+    console.error("LIFF初期化エラー:", err);
+    document.getElementById("result").textContent = "LIFF初期化に失敗しました: " + err.message;
   }
-
-  const profile = await liff.getProfile();
-
-  // ★ここを修正（headers消す）
-  await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
-    method: "POST",
-    body: JSON.stringify({
-      userId: profile.userId,
-      name: profile.displayName
-    })
-  });
-
-  console.log("送信完了");
 };
