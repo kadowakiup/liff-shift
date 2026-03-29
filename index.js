@@ -171,12 +171,10 @@
 
 
 
-fetch("https://script.google.com/macros/s/AKfycby7Ecval7Nv-We0ibr-P84nEG1Bv8Nn9r3uwVnDDC2p_HytjCebtQk0YVSbgWGwVP-MrQ/exec", {
+await fetch("https://script.google.com/macros/s/AKfycby7Ecval7Nv-We0ibr-P84nEG1Bv8Nn9r3uwVnDDC2p_HytjCebtQk0YVSbgWGwVP-MrQ/exec", {
   method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ test: "ok" })
-})
-.then(res => res.json())
-.then(console.log)
+  body: JSON.stringify({
+    userId: profile.userId,
+    name: profile.displayName
+  })
+});
