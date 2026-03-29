@@ -1,55 +1,3 @@
-// const LIFF_ID = "2009569390-ToBfmkCN";
-// console.log(LIFF_ID);
-// async function main() {
-//     await liff.init({ liffId: LIFF_ID });
-// }
-// main();
-// async function send() {
-//     const date = document.getElementById("date").value;
-//     const profile = await liff.getProfile();
-//     await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/YjBhMmRhN2ZjNTFmMDY4MzAzMzY5NDMzMDlhZjlhNzQw", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type":"application/json"
-//         },
-//         body: JSON.stringify({
-//             userId: profile.userId,
-//             date: date
-//         })
-//     });
-//     alert("送信しました");
-// }
-
-
-// const LIFF_ID = "2009569390-ToBfmkCN";
-// async function main() {
-//     await liff.init({ liffId: LIFF_ID });
-
-//     if (!liff.isLoggedIn()) {
-//         liff.login();
-//         return;
-//     }
-// }
-// main();
-
-// async function send() {
-//     const date = document.getElementById("date").value;
-//     console.log("inClient:", liff.isInClient());
-//     if (!liff.isInClient()) {
-//         alert("LINEアプリ内で開いてください");
-//         return;
-//     }
-//     await liff.sendMessages([
-//         {
-//             type: "text",
-//             text: "シフト変更＞" + date
-//         }
-//     ]);
-//     alert("送信しました");
-//     liff.closeWindow();
-// }
-
-
 window.onload = function () {
   liff.init({
     liffId: "2009569390-ToBfmkCN"
@@ -84,3 +32,35 @@ function send() {
     alert("送信に失敗しました");
   });
 }
+
+
+// Larkデータ取得テスト
+window.onload = async function () {
+  await liff.init({ liffId: "2009569390-ToBfmkCN" });
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+  const userId = profile.userId;
+
+  // 👉 AnyCrossにリクエスト送る
+  fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId: userId
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+      document.getElementById("result").innerText = data.total;
+  })
+  .catch(err => {
+      console.error(err);
+  });
+};
