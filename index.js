@@ -37,6 +37,13 @@ async function send() {
 
     const date = document.getElementById("date").value;
 
+    console.log("inClient:", liff.isInClient());
+
+    if (!liff.isInClient()) {
+        alert("LINEアプリ内で開いてください");
+        return;
+    }
+
     await liff.sendMessages([
         {
             type: "text",
@@ -47,5 +54,4 @@ async function send() {
     alert("送信しました");
 
     liff.closeWindow();
-
 }
