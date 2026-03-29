@@ -20,42 +20,19 @@
 //     alert("送信しました");
 // }
 
-const LIFF_ID = "2009569390-ToBfmkCN";
-
-async function main() {
-    await liff.init({ liffId: LIFF_ID });
-
-    if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-    }
-}
-
-main();
-
 async function send() {
 
-    try {
+    const date = document.getElementById("date").value;
 
-        const date = document.getElementById("date").value;
+    await liff.sendMessages([
+        {
+            type: "text",
+            text: "シフト変更＞テスト成功天才" + date
+        }
+    ]);
 
-        const profile = await liff.getProfile();
+    alert("送信しました");
 
-        await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/YjBhMmRhN2ZjNTFmMDY4MzAzMzY5NDMzMDlhZjlhNzQw", {
-            method: "POST",
-            headers: {
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify({
-                userId: profile.userId,
-                date: date
-            })
-        });
-
-        alert("送信しました");
-
-    } catch (e) {
-        alert("エラー：" + e.message);
-    }
+    liff.closeWindow();
 
 }
