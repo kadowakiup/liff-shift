@@ -73,21 +73,23 @@
 
 window.onload = async function () {
   try {
+    // LIFF初期化
     await liff.init({ liffId: "2009569390-ToBfmkCN" });
     console.log("LIFF初期化成功");
 
+    // 未ログインならログイン
     if (!liff.isLoggedIn()) {
       liff.login();
       return;
     }
 
+    // ユーザー情報取得
     const profile = await liff.getProfile();
     const userId = profile.userId;
-
     console.log("userId:", userId);
 
-    // 👉 AnyCrossにリクエスト送る
-    const res = await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+    // 👇 GASにリクエスト（ここが重要）
+    const res = await fetch("https://script.google.com/macros/s/AKfycbz0Sv4xWnHyRsioN752Zz2ISigXwmVlMXpxRnWXmI8RZvre3szuLLqUBPK5s3Fypgt9ig/exec", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -102,6 +104,7 @@ window.onload = async function () {
     const data = await res.json();
     console.log("data:", data);
 
+    // 表示
     document.getElementById("result").innerText = data.total;
 
   } catch (err) {
@@ -110,7 +113,7 @@ window.onload = async function () {
 };
 
 
-// 送信ボタン用
+// ボタン用（そのまま使える）
 function send() {
   if (!liff.isInClient()) {
     alert("LINEアプリ内で開いてください");
