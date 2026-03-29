@@ -171,10 +171,24 @@
 
 
 
-await fetch("https://script.google.com/macros/s/AKfycby7Ecval7Nv-We0ibr-P84nEG1Bv8Nn9r3uwVnDDC2p_HytjCebtQk0YVSbgWGwVP-MrQ/exec", {
-  method: "POST",
-  body: JSON.stringify({
-    userId: profile.userId,
-    name: profile.displayName
-  })
-});
+window.onload = async function () {
+  await liff.init({ liffId: "2009569390-ToBfmkCN" });
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+
+  // ★ここを修正（headers消す）
+  await fetch("https://script.google.com/macros/s/AKfycby7Ecval7Nv-We0ibr-P84nEG1Bv8Nn9r3uwVnDDC2p_HytjCebtQk0YVSbgWGwVP-MrQ/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      userId: profile.userId,
+      name: profile.displayName
+    })
+  });
+
+  console.log("送信完了");
+};
