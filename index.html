@@ -3,14 +3,21 @@
   <head>
     <meta charset="utf-8">
     <title>シフト変更</title>
+    <!-- LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- メインJS -->
     <script src="index.js"></script>
   </head>
-
   <body>
     <h2>シフト変更</h2>
+
+    <!-- 日付入力（任意） -->
     <input type="date" id="date">
-    <button onclick="send()">送信</button>
-    <div id="result">読み込み中...</div>
+
+    <!-- ユーザー操作で送信するボタン -->
+    <button id="sendButton">送信</button>
+
+    <!-- 結果表示 -->
+    <div id="result">まだ送信していません</div>
   </body>
 </html>
