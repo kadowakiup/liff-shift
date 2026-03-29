@@ -35,32 +35,43 @@ function send() {
 
 
 // Larkデータ取得テスト
+// window.onload = async function () {
+//   await liff.init({ liffId: "2009569390-ToBfmkCN" });
+
+//   if (!liff.isLoggedIn()) {
+//     liff.login();
+//     return;
+//   }
+
+//   const profile = await liff.getProfile();
+//   const userId = profile.userId;
+
+//   // 👉 AnyCrossにリクエスト送る
+//   fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify({
+//       userId: userId
+//     })
+//   })
+//   .then(res => res.json())
+//   .then(data => {
+//       document.getElementById("result").innerText = data.total;
+//   })
+//   .catch(err => {
+//       console.error(err);
+//   });
+// };
+
 window.onload = async function () {
-  await liff.init({ liffId: "2009569390-ToBfmkCN" });
+  console.log("開始");
 
-  if (!liff.isLoggedIn()) {
-    liff.login();
-    return;
+  try {
+    await liff.init({ liffId: "2009569390-ToBfmkCN" });
+    console.log("init成功");
+  } catch (e) {
+    console.error("init失敗", e);
   }
-
-  const profile = await liff.getProfile();
-  const userId = profile.userId;
-
-  // 👉 AnyCrossにリクエスト送る
-  fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      userId: userId
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-      document.getElementById("result").innerText = data.total;
-  })
-  .catch(err => {
-      console.error(err);
-  });
 };
