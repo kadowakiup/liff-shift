@@ -71,67 +71,104 @@
 
 
 
-window.onload = async function () {
-  try {
-    // LIFF初期化
-    await liff.init({ liffId: "2009569390-ToBfmkCN" });
-    console.log("LIFF初期化成功");
+// window.onload = async function () {
+//   try {
+//     // LIFF初期化
+//     await liff.init({ liffId: "2009569390-ToBfmkCN" });
+//     console.log("LIFF初期化成功");
 
-    // 未ログインならログイン
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
+//     // 未ログインならログイン
+//     if (!liff.isLoggedIn()) {
+//       liff.login();
+//       return;
+//     }
+
+//     // ユーザー情報取得
+//     const profile = await liff.getProfile();
+//     const userId = profile.userId;
+//     console.log("userId:", userId);
+
+//     // 👇 GASにリクエスト（ここが重要）
+//     const res = await fetch("https://script.google.com/macros/s/AKfycbz0Sv4xWnHyRsioN752Zz2ISigXwmVlMXpxRnWXmI8RZvre3szuLLqUBPK5s3Fypgt9ig/exec", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({
+//         userId: userId
+//       })
+//     });
+
+//     console.log("fetchレスポンス:", res);
+
+//     const data = await res.json();
+//     console.log("data:", data);
+
+//     // 表示
+//     document.getElementById("result").innerText = data.total;
+
+//   } catch (err) {
+//     console.error("エラー:", err);
+//   }
+// };
+
+
+// // ボタン用（そのまま使える）
+// function send() {
+//   if (!liff.isInClient()) {
+//     alert("LINEアプリ内で開いてください");
+//     return;
+//   }
+
+//   liff.sendMessages([
+//     {
+//       type: "text",
+//       text: "テスト"
+//     }
+//   ])
+//   .then(() => {
+//     alert("送信しました");
+//     liff.closeWindow();
+//   })
+//   .catch((err) => {
+//     console.error("送信エラー:", err);
+//     alert("送信に失敗しました");
+// //   });
+// }
+
+
+
+
+
+
+async function main() {
+      await liff.init({ liffId: "2009569390-ToBfmkCN" });
+
+      // ログインしてなければログイン
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      // ユーザー情報取得
+      const profile = await liff.getProfile();
+      const userId = profile.userId;
+
+      console.log("UserID:", userId);
+
+      // Anycrossへ送信
+      const res = await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: userId
+        })
+      });
+
+      const text = await res.text();
+      console.log("Anycross response:", text);
     }
 
-    // ユーザー情報取得
-    const profile = await liff.getProfile();
-    const userId = profile.userId;
-    console.log("userId:", userId);
-
-    // 👇 GASにリクエスト（ここが重要）
-    const res = await fetch("https://script.google.com/macros/s/AKfycbz0Sv4xWnHyRsioN752Zz2ISigXwmVlMXpxRnWXmI8RZvre3szuLLqUBPK5s3Fypgt9ig/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        userId: userId
-      })
-    });
-
-    console.log("fetchレスポンス:", res);
-
-    const data = await res.json();
-    console.log("data:", data);
-
-    // 表示
-    document.getElementById("result").innerText = data.total;
-
-  } catch (err) {
-    console.error("エラー:", err);
-  }
-};
-
-
-// ボタン用（そのまま使える）
-function send() {
-  if (!liff.isInClient()) {
-    alert("LINEアプリ内で開いてください");
-    return;
-  }
-
-  liff.sendMessages([
-    {
-      type: "text",
-      text: "テスト"
-    }
-  ])
-  .then(() => {
-    alert("送信しました");
-    liff.closeWindow();
-  })
-  .catch((err) => {
-    console.error("送信エラー:", err);
-    alert("送信に失敗しました");
-  });
-}
+    main();
