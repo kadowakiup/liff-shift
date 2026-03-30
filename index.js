@@ -68,7 +68,7 @@ window.onload = async function () {
         };
 
         // 👇 AnycrossにPOST
-        const response = await fetch("https://open-jp.larksuite.com/anycross/trigger/callback/NWE5ZDg4YTJmOTg2MGIyODJkYzAyZGZkMDgzMDA2OWYw", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzAGBQWSpYAnYB-EMpsYkAnrfQ12IYOLr7EsLH7ktcPlnLVRjWdjyKwwkYDX8DL9qRDzw/exec", {
           method: "POST",
           body: JSON.stringify(payload)
         });
