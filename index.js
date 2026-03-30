@@ -67,28 +67,48 @@ window.onload = async function () {
           name: profile.displayName
         };
 
-        // 👇 AnycrossにPOST
-        const response = await fetch("https://script.google.com/macros/s/AKfycbzGPx2dqhDxn4bGv_AgVJv1K1om_SKKzvLpDBwNxIzLTzNci81wVaxSx8MU6Pg9qS7pfA/exec", {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
+        console.log("送信payload:", payload);
 
-        // 👇 レスポンスを取得
-        const data = await response.json();
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbzGPx2dqhDxn4bGv_AgVJv1K1om_SKKzvLpDBwNxIzLTzNci81wVaxSx8MU6Pg9qS7pfA/exec",
+          {
+            method: "POST",
+            body: JSON.stringify(payload)
+          }
+        );
 
-        console.log("受信データ:", data);
+        // 👇 ステータス確認
+        console.log("HTTPステータス:", response.status);
 
-        // 👇 ここで画面に表示
+        // 👇 生テキスト取得（これ重要）
+        const rawText = await response.text();
+        console.log("生レスポンス:", rawText);
+
+        // 👇 JSON変換
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (e) {
+          console.error("JSONパース失敗:", e);
+          resultDiv.textContent = "JSONパースエラー";
+          return;
+        }
+
+        console.log("JSON変換後:", data);
+
+        // 👇 total確認
+        console.log("totalの中身:", data.total);
+
         resultDiv.textContent = "合計稼働時間: " + data.total;
 
       } catch (err) {
-        console.error(err);
+        console.error("通信エラー:", err);
         resultDiv.textContent = "エラー: " + err.message;
       }
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("LIFF初期化エラー:", err);
     document.getElementById("result").textContent = "LIFF初期化エラー";
   }
 };
