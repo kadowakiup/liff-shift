@@ -65,8 +65,9 @@ window.onload = async function () {
   const prevMonthBtn = document.getElementById("prevMonth");
   const nextMonthBtn = document.getElementById("nextMonth");
 
-  // 現在日付
-  let currentDate = new Date();
+  // LIFFを開いた日を基準
+  const today = new Date();
+  let currentDate = new Date(today); // 表示中の月
 
   // 仮データ（実際はGASから取得）
   let shiftData = {
@@ -90,7 +91,7 @@ window.onload = async function () {
 
     const startDay = firstDay.getDay(); // 0=日曜
 
-    // 空セル
+    // 曜日位置の空セル
     for (let i = 0; i < startDay; i++) {
       const emptyDiv = document.createElement("div");
       emptyDiv.className = "day";
@@ -99,7 +100,7 @@ window.onload = async function () {
 
     // 日付セル
     for (let day = 1; day <= totalDays; day++) {
-      const fullDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const fullDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
       const dayDiv = document.createElement("div");
       dayDiv.className = "day";
 
@@ -119,22 +120,33 @@ window.onload = async function () {
     }
   }
 
+  // 前後月ボタンの有効/無効を設定
+  function updateMonthButtons() {
+    const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
+    const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1);
+
+    // 前月は today の前月より前には戻せない
+    prevMonthBtn.disabled = prevMonth < new Date(today.getFullYear(), today.getMonth() - 1);
+
+    // 翌月は today の翌月より後には進めない
+    nextMonthBtn.disabled = nextMonth > new Date(today.getFullYear(), today.getMonth() + 1);
+  }
+
   // 更新ボタン押下
   updateButton.addEventListener("click", async () => {
-    // 更新中表示
     resultDiv.textContent = "更新中…";
 
     try {
-      // 💡 実際はここで fetch → GAS → Anycross → JSON を取得
+      // 💡 実際はここで fetch → GAS → Anycross → JSON を取得して shiftData に反映
       // await fetchGAS();
 
       // データ取得完了
       firstMessageDiv.style.display = "none"; // 更新ボタン非表示
       monthNavDiv.style.display = "flex";     // 月ナビ表示
-      resultDiv.textContent = "";             // 更新中消す
+      resultDiv.textContent = "";
 
       generateCalendar(currentDate);          // カレンダー生成
-
+      updateMonthButtons();                   // ボタン状態更新
     } catch (err) {
       console.error(err);
       resultDiv.textContent = "取得エラー: " + err.message;
@@ -145,11 +157,13 @@ window.onload = async function () {
   prevMonthBtn.addEventListener("click", () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     generateCalendar(currentDate);
+    updateMonthButtons();
   });
 
   // 翌月ボタン
   nextMonthBtn.addEventListener("click", () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     generateCalendar(currentDate);
+    updateMonthButtons();
   });
 };
