@@ -183,6 +183,15 @@ window.onload = async function () {
   const prevMonthBtn = document.getElementById("prevMonth");
   const nextMonthBtn = document.getElementById("nextMonth");
 
+  // 🔹 ここでLIFF初期化！
+  try {
+    await liff.init({ liffId: "2009569390-ToBfmkCN" }); // ←あなたのLIFF IDに置き換え
+  } catch (err) {
+    console.error(err);
+    resultDiv.textContent = "LIFF初期化エラー: " + err.message;
+    return;
+  }
+
   // LIFFを開いた日を基準
   const today = new Date();
   let currentDate = new Date(today); // 表示中の月
