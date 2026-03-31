@@ -228,7 +228,7 @@ window.onload = async function () {
       dateSpan.textContent = day;
       dayDiv.appendChild(dateSpan);
 
-      // ✅ シフト表示
+      // シフト表示
       if (shiftData[fullDateStr]) {
         const shiftDiv = document.createElement("div");
         shiftDiv.className = "shift-time";
@@ -240,7 +240,7 @@ window.onload = async function () {
     }
   }
 
-  // 月移動制御（前月・当月・翌月のみ）
+  // 月制限（前月・当月・翌月）
   function updateMonthButtons() {
     const minDate = new Date(today.getFullYear(), today.getMonth() - 1);
     const maxDate = new Date(today.getFullYear(), today.getMonth() + 1);
@@ -276,7 +276,6 @@ window.onload = async function () {
 
       const profile = await liff.getProfile();
 
-      // ✅ GETでGAS呼び出し（CORS回避）
       const url =
         "https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec" +
         "?userId=" + encodeURIComponent(profile.userId) +
@@ -288,11 +287,29 @@ window.onload = async function () {
         throw new Error("GASエラー: " + response.status);
       }
 
-      const data = await response.json();
+      // 🔥 ここからデバッグの本体
+      const rawText = await response.text();
+      console.log("RAW TEXT:", rawText);
 
-      console.log("GAS response:", data);
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        console.error("JSONパース失敗", e);
+        resultDiv.textContent = "JSONパース失敗";
+        return;
+      }
 
-      shiftData = data.shifts || {};
+      console.log("PARSED:", data);
+
+      // 🔥 全パターン対応
+      shiftData =
+        data.shifts ||
+        data.body?.shifts ||
+        data.data?.body?.shifts ||
+        {};
+
+      console.log("shiftData:", shiftData);
 
       // UI切替
       firstMessageDiv.style.display = "none";
