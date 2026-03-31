@@ -13,26 +13,22 @@
     <!-- ===== カレンダー画面 ===== -->
     <div id="calendarView">
       
-      <!-- 更新ボタン -->
       <div id="firstMessage">
         <button id="updateButton">更新</button>
       </div>
       
       <div id="result">ここに結果が出ます</div>
       
-      <!-- 前月/今月ナビ -->
       <div id="monthNav" style="display:none;">
         <button id="prevMonth">&lt; 前月</button>
         <span id="currentMonth"></span>
         <button id="nextMonth">次月 &gt;</button>
       </div>
       
-      <!-- カレンダー表示 -->
       <div id="calendar"></div>
-
     </div>
 
-    <!-- ===== 詳細画面（追加） ===== -->
+    <!-- ===== 詳細画面 ===== -->
     <div id="detailView" style="display:none;">
       <h3 id="detailDate"></h3>
       <p id="detailShift"></p>
@@ -42,6 +38,22 @@
       <button id="btnMedical">診断書提出</button>
 
       <br><br>
+
+      <!-- ★ ここ追加（重要） -->
+      <div id="editArea" style="display:none;">
+        <p>出勤</p>
+        <select id="startTime"></select>
+
+        <p>退勤</p>
+        <select id="endTime"></select>
+
+        <br><br>
+        <button id="saveEdit">保存</button>
+
+        <p id="editError" style="color:red;"></p>
+      </div>
+
+      <br>
       <button id="backButton">戻る</button>
     </div>
 
