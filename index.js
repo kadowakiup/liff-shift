@@ -280,6 +280,17 @@ window.onload = async function () {
     startSelect.innerHTML = "";
     endSelect.innerHTML = "";
 
+    // ★ 追加
+    const noChangeStart = document.createElement("option");
+    noChangeStart.value = "";
+    noChangeStart.textContent = "変更なし";
+    startSelect.appendChild(noChangeStart);
+
+    const noChangeEnd = document.createElement("option");
+    noChangeEnd.value = "";
+    noChangeEnd.textContent = "変更なし";
+    endSelect.appendChild(noChangeEnd);
+
     const startRules = {
       12: ["00","15","30","45"],
       13: ["00","15","30","45"],
@@ -350,11 +361,16 @@ window.onload = async function () {
   // 保存処理
   // =====================
   saveEdit.addEventListener("click", () => {
-    const start = startSelect.value;
-    const end = endSelect.value;
+    let start = startSelect.value;
+    let end = endSelect.value;
+
+    const selectedDate = detailDate.textContent;
+
+    // ★ 変更なし対応
+    if (!start) start = originalStart;
+    if (!end) end = originalEnd;
 
     const now = new Date();
-    const selectedDate = detailDate.textContent;
 
     const startDt = new Date(`${selectedDate} ${start}`);
     const endDt = new Date(`${selectedDate} ${end}`);
@@ -362,16 +378,19 @@ window.onload = async function () {
 
     editError.textContent = "";
 
+    // ルール①
     if (startDt < now || endDt < now) {
       editError.textContent = "シフト変更時間を過ぎています";
       return;
     }
 
+    // ルール②（退勤）
     if (originalEndDt < now) {
       editError.textContent = "このシフトは変更できません";
       return;
     }
 
+    // 基本チェック
     if (startDt >= endDt) {
       editError.textContent = "時間の設定が不正です";
       return;
