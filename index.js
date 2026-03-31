@@ -366,11 +366,14 @@ window.onload = async function () {
 
     const selectedDate = detailDate.textContent;
 
+    const now = new Date();
+
     // ★ 変更なし対応
+    const isStartChanged = !!start;
+    const isEndChanged = !!end;
+
     if (!start) start = originalStart;
     if (!end) end = originalEnd;
-
-    const now = new Date();
 
     const startDt = new Date(`${selectedDate} ${start}`);
     const endDt = new Date(`${selectedDate} ${end}`);
@@ -378,19 +381,34 @@ window.onload = async function () {
 
     editError.textContent = "";
 
-    // ルール①
-    if (startDt < now || endDt < now) {
-      editError.textContent = "シフト変更時間を過ぎています";
+    // =========================
+    // ① 出勤チェック（変更した場合のみ）
+    // =========================
+    if (isStartChanged && startDt < now) {
+      editError.textContent = "シフト変更時間を過ぎています（出勤）";
       return;
     }
 
-    // ルール②（退勤）
-    if (originalEndDt < now) {
-      editError.textContent = "このシフトは変更できません";
-      return;
+    // =========================
+    // ② 退勤チェック
+    // =========================
+    if (isEndChanged) {
+      // 元の退勤が未来じゃないとNG
+      if (originalEndDt < now) {
+        editError.textContent = "このシフトは変更できません";
+        return;
+      }
+
+      // 変更後が過去もNG
+      if (endDt < now) {
+        editError.textContent = "シフト変更時間を過ぎています（退勤）";
+        return;
+      }
     }
 
-    // 基本チェック
+    // =========================
+    // ③ 時間整合性
+    // =========================
     if (startDt >= endDt) {
       editError.textContent = "時間の設定が不正です";
       return;
