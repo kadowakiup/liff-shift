@@ -230,10 +230,17 @@ window.onload = async function () {
 
       // シフト表示
       if (shiftData[fullDateStr]) {
-        const shiftDiv = document.createElement("div");
-        shiftDiv.className = "shift-time";
-        shiftDiv.textContent = shiftData[fullDateStr];
-        dayDiv.appendChild(shiftDiv);
+        const shiftSpan = document.createElement("div");
+        shiftSpan.className = "shift-time";
+        shiftSpan.textContent = shiftData[fullDateStr];
+
+        // 👇 ここ追加（重要）
+        shiftSpan.addEventListener("click", (e) => {
+          e.stopPropagation(); // ← 日付クリック防止
+          openDetail(fullDateStr, shiftData[fullDateStr]);
+        });
+
+        dayDiv.appendChild(shiftSpan);
       }
 
       calendarDiv.appendChild(dayDiv);
