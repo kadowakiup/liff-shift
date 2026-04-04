@@ -48,7 +48,7 @@ window.onload = async function () {
   try {
     await liff.init({ liffId: "2009569390-ToBfmkCN" });
 
-    // ここ！
+    // ログイン（開発のため）
     resultDiv.style.color = "black";
     resultDiv.innerHTML =
       "LIFF初期化成功<br>" +
@@ -388,6 +388,15 @@ window.onload = async function () {
         resultDiv.innerHTML +=
           "<br>JSON変換エラー: " + escapeHtml(err.message);
         return;
+      }
+
+      // ここ！
+      // 👇ここに追加
+      if (data.anycrossRaw) {
+        resultDiv.innerHTML +=
+          "<br>AnyCross生返却:<br><pre style='white-space:pre-wrap;word-break:break-all;'>" +
+          escapeHtml(data.anycrossRaw) +
+          "</pre>";
       }
 
       shiftData = data.shifts || {};
