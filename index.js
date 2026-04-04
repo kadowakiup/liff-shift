@@ -619,6 +619,7 @@ window.onload = async function () {
   const prevMonthBtn = document.getElementById("prevMonth");
   const nextMonthBtn = document.getElementById("nextMonth");
 
+  // 詳細画面
   const calendarView = document.getElementById("calendarView");
   const detailView = document.getElementById("detailView");
   const detailDate = document.getElementById("detailDate");
@@ -638,11 +639,13 @@ window.onload = async function () {
   let shiftData = {};
   let currentDate = new Date();
 
+  // 選択中シフト情報
   let selectedShiftId = "";
   let selectedDateStr = "";
   let originalStart = "";
   let originalEnd = "";
 
+  // LIFF初期化
   try {
     await liff.init({ liffId: "2009569390-ToBfmkCN" });
   } catch (err) {
@@ -651,41 +654,29 @@ window.onload = async function () {
     return;
   }
 
-  // 必須要素チェック
-  const requiredElements = [
-    calendarDiv, currentMonthSpan, updateButton, resultDiv, firstMessageDiv,
-    monthNavDiv, prevMonthBtn, nextMonthBtn, calendarView, detailView,
-    detailDate, detailShift, backButton, btnEdit, saveEdit, editError,
-    editArea, startSelect, endSelect
-  ];
-
-  if (requiredElements.some(el => !el)) {
-    console.error("必要なHTML要素が不足しています");
-    resultDiv.textContent = "HTML要素が不足しています";
-    return;
-  }
-
-  function toDateTime(dateStr, timeStr) {
-    return new Date(`${dateStr}T${timeStr}:00`);
-  }
-
+  // =====================
+  // カレンダー生成
+  // =====================
   function generateCalendar(date) {
     calendarDiv.innerHTML = "";
 
     const year = date.getFullYear();
     const month = date.getMonth();
+
     currentMonthSpan.textContent = `${year}年 ${month + 1}月`;
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDay = firstDay.getDay();
 
+    // 曜日分の空白
     for (let i = 0; i < startDay; i++) {
       const emptyDiv = document.createElement("div");
       emptyDiv.className = "day";
       calendarDiv.appendChild(emptyDiv);
     }
 
+    // 日付セル
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const fullDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
@@ -716,21 +707,34 @@ window.onload = async function () {
     }
   }
 
-  function openDetail(dateStr, shift) {
-    selectedDateStr = dateStr;
-    selectedShiftId = shift.id || "";
-    originalStart = shift.start || "";
-    originalEnd = shift.end || "";
-
-    detailDate.textContent = dateStr;
-    detailShift.textContent = `${originalStart}-${originalEnd}`;
-    editError.textContent = "";
-    editArea.style.display = "none";
-
+  // =====================
+  // 詳細表示
+  // =====================
+  function openDetail(date, shift) {
     calendarView.style.display = "none";
     detailView.style.display = "block";
+
+    selectedDateStr = date;
+    selectedShiftId = shift.id;
+    originalStart = shift.start;
+    originalEnd = shift.end;
+
+    detailDate.textContent = date;
+    detailShift.textContent = `${shift.start}-${shift.end}`;
+
+    editArea.style.display = "none";
+    editError.textContent = "";
   }
 
+  // 戻る
+  backButton.addEventListener("click", () => {
+    detailView.style.display = "none";
+    calendarView.style.display = "block";
+  });
+
+  // =====================
+  // プルダウン生成
+  // =====================
   function generateTimeOptions() {
     startSelect.innerHTML = "";
     endSelect.innerHTML = "";
@@ -761,20 +765,25 @@ window.onload = async function () {
 
     const now = new Date();
 
+    // 出勤のデフォルト
     const defaultStart = document.createElement("option");
-    defaultStart.value = "";
+    defaultStart.value = originalStart;
     defaultStart.textContent = "変更なし";
+    defaultStart.selected = true;
     startSelect.appendChild(defaultStart);
 
+    // 退勤のデフォルト
     const defaultEnd = document.createElement("option");
-    defaultEnd.value = "";
+    defaultEnd.value = originalEnd;
     defaultEnd.textContent = "変更なし";
+    defaultEnd.selected = true;
     endSelect.appendChild(defaultEnd);
 
+    // 出勤候補
     for (const h in startRules) {
       for (const m of startRules[h]) {
         const time = `${String(h).padStart(2, "0")}:${m}`;
-        const dt = toDateTime(selectedDateStr, time);
+        const dt = new Date(`${selectedDateStr}T${time}:00`);
         if (dt < now) continue;
 
         const opt = document.createElement("option");
@@ -784,10 +793,11 @@ window.onload = async function () {
       }
     }
 
+    // 退勤候補
     for (const h in endRules) {
       for (const m of endRules[h]) {
         const time = `${String(h).padStart(2, "0")}:${m}`;
-        const dt = toDateTime(selectedDateStr, time);
+        const dt = new Date(`${selectedDateStr}T${time}:00`);
         if (dt < now) continue;
 
         const opt = document.createElement("option");
@@ -798,78 +808,45 @@ window.onload = async function () {
     }
   }
 
-  async function loadShifts() {
-    resultDiv.textContent = "更新中…";
-
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
-    }
-
-    const profile = await liff.getProfile();
-
-    const params = new URLSearchParams({
-      action: "fetch",
-      userId: profile.userId,
-      name: profile.displayName
-    });
-
-    const res = await fetch(`${GAS_URL}?${params.toString()}`);
-    const data = await res.json();
-
-    if (!data.success) {
-      throw new Error(data.message || "取得に失敗しました");
-    }
-
-    shiftData = data.shifts || {};
-
-    firstMessageDiv.style.display = "none";
-    monthNavDiv.style.display = "flex";
-    resultDiv.textContent = "";
-
-    generateCalendar(currentDate);
-  }
-
-  backButton.addEventListener("click", () => {
-    detailView.style.display = "none";
-    calendarView.style.display = "block";
-    editArea.style.display = "none";
-    editError.textContent = "";
-  });
-
+  // 時間変更ボタン
   btnEdit.addEventListener("click", () => {
     editArea.style.display = "block";
-    editError.textContent = "";
     generateTimeOptions();
   });
 
+  // =====================
+  // 保存処理
+  // =====================
   saveEdit.addEventListener("click", async () => {
-    const selectedStart = startSelect.value;
-    const selectedEnd = endSelect.value;
+    const start = startSelect.value;
+    const end = endSelect.value;
 
-    const newStart = selectedStart || originalStart;
-    const newEnd = selectedEnd || originalEnd;
+    const newStart = start === originalStart ? originalStart : start;
+    const newEnd = end === originalEnd ? originalEnd : end;
 
     const now = new Date();
-    const startDt = toDateTime(selectedDateStr, newStart);
-    const endDt = toDateTime(selectedDateStr, newEnd);
-    const originalEndDt = toDateTime(selectedDateStr, originalEnd);
+    const startDt = new Date(`${selectedDateStr}T${newStart}:00`);
+    const endDt = new Date(`${selectedDateStr}T${newEnd}:00`);
+    const originalEndDt = new Date(`${selectedDateStr}T${originalEnd}:00`);
 
     editError.textContent = "";
 
     const startChanged = newStart !== originalStart;
     const endChanged = newEnd !== originalEnd;
 
+    // 出勤チェック
     if (startChanged && startDt < now) {
       editError.textContent = "出勤時間は過去に設定できません。公式LINEに相談してください";
       return;
     }
 
+    // 退勤チェック
     if (endChanged && (endDt < now || originalEndDt < now)) {
       editError.textContent = "退勤時間は変更できません。公式LINEに相談してください";
       return;
     }
 
+    // 時間前後チェック
     if (startDt >= endDt) {
       editError.textContent = "時間の設定が不正です。公式LINEに相談してください";
       return;
@@ -882,23 +859,18 @@ window.onload = async function () {
     try {
       resultDiv.textContent = "保存中…";
 
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-      }
-
       const profile = await liff.getProfile();
 
-      const params = new URLSearchParams({
-        action: "update",
-        userId: profile.userId,
-        shiftId: selectedShiftId,
-        date: selectedDateStr,
-        start: newStart,
-        end: newEnd
-      });
+      const url =
+        GAS_URL +
+        "?action=update" +
+        "&userId=" + encodeURIComponent(profile.userId) +
+        "&shiftId=" + encodeURIComponent(selectedShiftId) +
+        "&date=" + encodeURIComponent(selectedDateStr) +
+        "&start=" + encodeURIComponent(newStart) +
+        "&end=" + encodeURIComponent(newEnd);
 
-      const res = await fetch(`${GAS_URL}?${params.toString()}`);
+      const res = await fetch(url);
       const data = await res.json();
 
       if (!data.success) {
@@ -907,6 +879,7 @@ window.onload = async function () {
         return;
       }
 
+      // 表示データ更新
       const dayShifts = shiftData[selectedDateStr] || [];
       const targetShift = dayShifts.find((s) => s.id === selectedShiftId);
 
@@ -918,7 +891,7 @@ window.onload = async function () {
       detailShift.textContent = `${newStart}-${newEnd}`;
       editArea.style.display = "none";
 
-      alert(data.message || "時間変更完了");
+      alert(data.message || "シフトを保存しました");
 
       resultDiv.textContent = "";
       generateCalendar(currentDate);
@@ -932,20 +905,45 @@ window.onload = async function () {
     }
   });
 
+  // =====================
+  // 更新ボタン
+  // =====================
   updateButton.addEventListener("click", async () => {
     try {
-      await loadShifts();
+      resultDiv.textContent = "更新中…";
+
+      const profile = await liff.getProfile();
+
+      const url =
+        GAS_URL +
+        "?action=fetch" +
+        "&userId=" + encodeURIComponent(profile.userId) +
+        "&name=" + encodeURIComponent(profile.displayName);
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      shiftData = data.shifts || {};
+
+      firstMessageDiv.style.display = "none";
+      monthNavDiv.style.display = "flex";
+      resultDiv.textContent = "";
+
+      generateCalendar(currentDate);
+
     } catch (err) {
       console.error(err);
       resultDiv.textContent = "取得エラー: " + err.message;
     }
   });
 
+  // 前月
   prevMonthBtn.addEventListener("click", () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     generateCalendar(currentDate);
   });
 
+  // 翌月
   nextMonthBtn.addEventListener("click", () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     generateCalendar(currentDate);
