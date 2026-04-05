@@ -1024,7 +1024,7 @@ window.onload = async function () {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function getShiftByIdFromShiftData(targetShiftId) {
+  function findShiftById(targetShiftId) {
     for (const dateKey in shiftData) {
       const dayShifts = shiftData[dateKey] || [];
       const found = dayShifts.find((s) => s.id === targetShiftId);
@@ -1040,7 +1040,7 @@ window.onload = async function () {
 
   async function waitForShiftRefresh(checkFn, options = {}) {
     const {
-      maxAttempts = 6,
+      maxAttempts = 8,
       intervalMs = 1500,
       loadingMessage = "反映待ち…"
     } = options;
@@ -1051,8 +1051,7 @@ window.onload = async function () {
       await sleep(intervalMs);
       await reloadShifts();
 
-      const ok = checkFn();
-      if (ok) {
+      if (checkFn()) {
         resultDiv.textContent = "";
         return true;
       }
@@ -1061,6 +1060,8 @@ window.onload = async function () {
     resultDiv.textContent = "";
     return false;
   }
+
+
 
   // =====================
   // LIFF初期化
@@ -1309,16 +1310,43 @@ window.onload = async function () {
           return;
         }
 
-        await reloadShifts();
+        // ここ直す
+        // await reloadShifts();
 
-        detailShift.textContent = `${newStart}-${newEnd}`;
+        // detailShift.textContent = `${newStart}-${newEnd}`;
+        // editArea.style.display = "none";
+
+        // alert(data.message || "シフトを保存しました");
+
+        // resultDiv.textContent = "";
+        // detailView.style.display = "none";
+        // calendarView.style.display = "block";
+
+        // ここ追加
+        const reflected = await waitForShiftRefresh(() => {
+          const found = findShiftById(selectedShiftId);
+          if (!found) return false;
+
+          return found.shift.start === newStart && found.shift.end === newEnd;
+        }, {
+          maxAttempts: 8,
+          intervalMs: 1500,
+          loadingMessage: "時間変更の反映待ち…"
+        });
+
         editArea.style.display = "none";
 
-        alert(data.message || "シフトを保存しました");
+        alert(
+          reflected
+            ? (data.message || "シフトを保存しました")
+            : "時間変更の保存は完了しました。画面反映に時間がかかっているため、更新ボタンで再確認してください。"
+        );
 
         resultDiv.textContent = "";
         detailView.style.display = "none";
         calendarView.style.display = "block";
+
+
       } catch (err) {
         console.error(err);
         editError.textContent = "保存中にエラーが発生しました";
@@ -1369,13 +1397,44 @@ window.onload = async function () {
           return;
         }
 
-        await reloadShifts();
+        // 直す
+        // await reloadShifts();
+
+        // detailView.style.display = "none";
+        // calendarView.style.display = "block";
+        // resultDiv.textContent = "";
+
+        // alert(data.message || "処理が完了しました");
+
+        // ここ追加
+        const reflected = await waitForShiftRefresh(() => {
+          const found = findShiftById(selectedShiftId);
+
+          // シフトが消えたら完了
+          if (!found) return true;
+
+          // 消えずに残る仕様なら、時間が空になったら完了扱い
+          const startEmpty = !found.shift.start;
+          const endEmpty = !found.shift.end;
+
+          return startEmpty && endEmpty;
+        }, {
+          maxAttempts: 8,
+          intervalMs: 1500,
+          loadingMessage: "休み / 削除の反映待ち…"
+        });
 
         detailView.style.display = "none";
         calendarView.style.display = "block";
         resultDiv.textContent = "";
 
-        alert(data.message || "処理が完了しました");
+        alert(
+          reflected
+            ? (data.message || "処理が完了しました")
+            : "休み / 削除の処理は完了しました。画面反映に時間がかかっているため、更新ボタンで再確認してください。"
+        );
+
+
       } catch (err) {
         console.error(err);
         resultDiv.textContent = "";
@@ -1575,7 +1634,7 @@ window.onload = async function () {
       calendarView.style.display = "block";
 
 
-      
+
       } catch (err) {
         console.error(err);
         resultDiv.textContent = "";
