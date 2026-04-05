@@ -1,4 +1,4 @@
-// 診断書提出ほぼ
+// // 診断書提出完璧
 // window.onload = async function () {
 //   const calendarDiv = document.getElementById("calendar");
 //   const currentMonthSpan = document.getElementById("currentMonth");
@@ -34,7 +34,8 @@
 //   const medicalError = document.getElementById("medicalError");
 //   const submitMedical = document.getElementById("submitMedical");
 
-//   const GAS_URL = "https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec";
+//   const GAS_URL =
+//     "https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec";
 
 //   let shiftData = {};
 //   let currentDate = new Date();
@@ -48,6 +49,7 @@
 //   // 診断書画像
 //   let medicalFileObj = null;
 //   let medicalImageBase64 = "";
+//   let medicalPreviewObjectUrl = "";
 
 //   // =====================
 //   // 共通関数
@@ -63,6 +65,13 @@
 //     shiftData[selectedDateStr] = dayShifts.filter((s) => s.id !== selectedShiftId);
 //   }
 
+//   function clearMedicalPreviewUrl() {
+//     if (medicalPreviewObjectUrl) {
+//       URL.revokeObjectURL(medicalPreviewObjectUrl);
+//       medicalPreviewObjectUrl = "";
+//     }
+//   }
+
 //   function resetMedicalArea() {
 //     if (!medicalArea) return;
 
@@ -71,6 +80,8 @@
 //     if (medicalFile) {
 //       medicalFile.value = "";
 //     }
+
+//     clearMedicalPreviewUrl();
 
 //     if (medicalPreview) {
 //       medicalPreview.src = "";
@@ -88,7 +99,19 @@
 //     medicalImageBase64 = "";
 //   }
 
-//   function fileToBase64(file) {
+//   function setButtonsDisabled(disabled) {
+//     if (updateButton) updateButton.disabled = disabled;
+//     if (btnEdit) btnEdit.disabled = disabled;
+//     if (btnDelete) btnDelete.disabled = disabled;
+//     if (btnMedical) btnMedical.disabled = disabled;
+//     if (saveEdit) saveEdit.disabled = disabled;
+//     if (submitMedical) submitMedical.disabled = disabled;
+//     if (backButton) backButton.disabled = disabled;
+//     if (prevMonthBtn) prevMonthBtn.disabled = disabled;
+//     if (nextMonthBtn) nextMonthBtn.disabled = disabled;
+//   }
+
+//   function fileToBase64(fileOrBlob) {
 //     return new Promise((resolve, reject) => {
 //       const reader = new FileReader();
 
@@ -99,6 +122,62 @@
 //       };
 
 //       reader.onerror = function () {
+//         reject(new Error("base64変換に失敗しました"));
+//       };
+
+//       reader.readAsDataURL(fileOrBlob);
+//     });
+//   }
+
+//   async function resizeImageFile(file, maxWidth = 1200, quality = 0.7) {
+//     return new Promise((resolve, reject) => {
+//       const reader = new FileReader();
+
+//       reader.onload = function (event) {
+//         const img = new Image();
+
+//         img.onload = function () {
+//           let width = img.width;
+//           let height = img.height;
+
+//           if (width > maxWidth) {
+//             height = Math.round(height * (maxWidth / width));
+//             width = maxWidth;
+//           }
+
+//           const canvas = document.createElement("canvas");
+//           canvas.width = width;
+//           canvas.height = height;
+
+//           const ctx = canvas.getContext("2d");
+//           if (!ctx) {
+//             reject(new Error("画像処理に失敗しました"));
+//             return;
+//           }
+
+//           ctx.drawImage(img, 0, 0, width, height);
+
+//           canvas.toBlob(
+//             (blob) => {
+//               if (!blob) {
+//                 reject(new Error("画像圧縮に失敗しました"));
+//                 return;
+//               }
+//               resolve(blob);
+//             },
+//             "image/jpeg",
+//             quality
+//           );
+//         };
+
+//         img.onerror = function () {
+//           reject(new Error("画像の読み込みに失敗しました"));
+//         };
+
+//         img.src = event.target.result;
+//       };
+
+//       reader.onerror = function () {
 //         reject(new Error("画像の読み込みに失敗しました"));
 //       };
 
@@ -106,14 +185,38 @@
 //     });
 //   }
 
-//   function setButtonsDisabled(disabled) {
-//     if (updateButton) updateButton.disabled = disabled;
-//     if (btnEdit) btnEdit.disabled = disabled;
-//     if (btnDelete) btnDelete.disabled = disabled;
-//     if (btnMedical) btnMedical.disabled = disabled;
-//     if (saveEdit) saveEdit.disabled = disabled;
-//     if (submitMedical) submitMedical.disabled = disabled;
-//     if (backButton) backButton.disabled = disabled;
+//   async function prepareCompressedMedicalImage(file) {
+//     let blob = await resizeImageFile(file, 1200, 0.7);
+//     let base64 = await fileToBase64(blob);
+
+//     // まだ大きい場合はさらに圧縮
+//     if (base64.length > 4000000) {
+//       blob = await resizeImageFile(file, 1000, 0.6);
+//       base64 = await fileToBase64(blob);
+//     }
+
+//     if (base64.length > 3000000) {
+//       blob = await resizeImageFile(file, 800, 0.55);
+//       base64 = await fileToBase64(blob);
+//     }
+
+//     if (base64.length > 2500000) {
+//       blob = await resizeImageFile(file, 700, 0.5);
+//       base64 = await fileToBase64(blob);
+//     }
+
+//     return { blob, base64 };
+//   }
+
+//   async function fetchJson(url, options = {}) {
+//     const res = await fetch(url, options);
+//     const text = await res.text();
+
+//     try {
+//       return JSON.parse(text);
+//     } catch (err) {
+//       throw new Error(`JSON解析失敗: ${text}`);
+//     }
 //   }
 
 //   // =====================
@@ -355,13 +458,11 @@
 //           "&start=" + encodeURIComponent(newStart) +
 //           "&end=" + encodeURIComponent(newEnd);
 
-//         const res = await fetch(url);
-//         const data = await res.json();
+//         const data = await fetchJson(url);
 
 //         if (!data.success) {
 //           editError.textContent = data.message || "時間変更に失敗しました";
 //           resultDiv.textContent = "";
-//           setButtonsDisabled(false);
 //           return;
 //         }
 
@@ -424,13 +525,11 @@
 //           "&start=" + encodeURIComponent(originalStart) +
 //           "&end=" + encodeURIComponent(originalEnd);
 
-//         const res = await fetch(url);
-//         const data = await res.json();
+//         const data = await fetchJson(url);
 
 //         if (!data.success) {
 //           alert(data.message || "休み / 削除処理に失敗しました");
 //           resultDiv.textContent = "";
-//           setButtonsDisabled(false);
 //           return;
 //         }
 
@@ -478,6 +577,7 @@
 //         if (!file) {
 //           medicalFileObj = null;
 //           medicalImageBase64 = "";
+//           clearMedicalPreviewUrl();
 //           if (medicalPreview) medicalPreview.src = "";
 //           if (medicalPreviewWrap) medicalPreviewWrap.style.display = "none";
 //           return;
@@ -488,22 +588,52 @@
 //           medicalFile.value = "";
 //           medicalFileObj = null;
 //           medicalImageBase64 = "";
+//           clearMedicalPreviewUrl();
 //           if (medicalPreview) medicalPreview.src = "";
 //           if (medicalPreviewWrap) medicalPreviewWrap.style.display = "none";
 //           return;
 //         }
 
-//         medicalFileObj = file;
-//         medicalImageBase64 = await fileToBase64(file);
+//         resultDiv.textContent = "画像を調整中…";
+
+//         const { blob, base64 } = await prepareCompressedMedicalImage(file);
+
+//         if (!base64) {
+//           throw new Error("画像データの作成に失敗しました");
+//         }
+
+//         if (base64.length > 4500000) {
+//           medicalError.textContent =
+//             "画像サイズが大きすぎます。もう少し小さい画像で試してください。";
+//           resultDiv.textContent = "";
+//           medicalFile.value = "";
+//           medicalFileObj = null;
+//           medicalImageBase64 = "";
+//           clearMedicalPreviewUrl();
+//           if (medicalPreview) medicalPreview.src = "";
+//           if (medicalPreviewWrap) medicalPreviewWrap.style.display = "none";
+//           return;
+//         }
+
+//         medicalFileObj = new File([blob], "medical.jpg", {
+//           type: "image/jpeg"
+//         });
+//         medicalImageBase64 = base64;
+
+//         clearMedicalPreviewUrl();
+//         medicalPreviewObjectUrl = URL.createObjectURL(blob);
 
 //         if (medicalPreview) {
-//           medicalPreview.src = URL.createObjectURL(file);
+//           medicalPreview.src = medicalPreviewObjectUrl;
 //         }
 //         if (medicalPreviewWrap) {
 //           medicalPreviewWrap.style.display = "block";
 //         }
+
+//         resultDiv.textContent = "";
 //       } catch (err) {
 //         console.error(err);
+//         resultDiv.textContent = "";
 //         medicalError.textContent = "画像の読み込みに失敗しました";
 //       }
 //     });
@@ -519,6 +649,12 @@
 
 //         if (!medicalFileObj || !medicalImageBase64) {
 //           medicalError.textContent = "診断書の写真をアップロードしてください";
+//           return;
+//         }
+
+//         if (medicalImageBase64.length > 4500000) {
+//           medicalError.textContent =
+//             "画像サイズが大きすぎます。もう少し小さい画像で試してください。";
 //           return;
 //         }
 
@@ -548,23 +684,20 @@
 //           imageBase64: medicalImageBase64
 //         });
 
-//         const res = await fetch(GAS_URL, {
+//         const data = await fetchJson(GAS_URL, {
 //           method: "POST",
 //           body: formBody
 //         });
 
-//         const data = await res.json();
-
 //         if (!data.success) {
 //           medicalError.textContent = data.message || "診断書の提出に失敗しました";
 //           resultDiv.textContent = "";
-//           setButtonsDisabled(false);
 //           return;
 //         }
 
 //         alert(
 //           data.message ||
-//           "診断書の提出が完了しました。月末に確認をしているため、不正があった場合は当日欠勤に戻る可能性があります。"
+//             "診断書の提出が完了しました。月末に確認をしているため、不正があった場合は当日欠勤に戻る可能性があります。"
 //         );
 
 //         resultDiv.textContent = "";
@@ -598,12 +731,10 @@
 //           "&userId=" + encodeURIComponent(profile.userId) +
 //           "&name=" + encodeURIComponent(profile.displayName);
 
-//         const res = await fetch(url);
-//         const data = await res.json();
+//         const data = await fetchJson(url);
 
 //         if (!data.success) {
 //           resultDiv.textContent = data.message || "取得に失敗しました";
-//           setButtonsDisabled(false);
 //           return;
 //         }
 
@@ -640,6 +771,12 @@
 //     });
 //   }
 // };
+
+
+
+
+
+
 
 
 
@@ -706,11 +843,6 @@ window.onload = async function () {
     const d = new Date(dateStr + "T00:00:00");
     const week = ["日", "月", "火", "水", "木", "金", "土"];
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日(${week[d.getDay()]})`;
-  }
-
-  function removeSelectedShiftFromLocal() {
-    const dayShifts = shiftData[selectedDateStr] || [];
-    shiftData[selectedDateStr] = dayShifts.filter((s) => s.id !== selectedShiftId);
   }
 
   function clearMedicalPreviewUrl() {
@@ -837,7 +969,6 @@ window.onload = async function () {
     let blob = await resizeImageFile(file, 1200, 0.7);
     let base64 = await fileToBase64(blob);
 
-    // まだ大きい場合はさらに圧縮
     if (base64.length > 4000000) {
       blob = await resizeImageFile(file, 1000, 0.6);
       base64 = await fileToBase64(blob);
@@ -865,6 +996,27 @@ window.onload = async function () {
     } catch (err) {
       throw new Error(`JSON解析失敗: ${text}`);
     }
+  }
+
+  async function reloadShifts() {
+    const profile = await liff.getProfile();
+
+    const url =
+      GAS_URL +
+      "?action=fetch" +
+      "&userId=" + encodeURIComponent(profile.userId) +
+      "&name=" + encodeURIComponent(profile.displayName);
+
+    const data = await fetchJson(url);
+
+    if (!data.success) {
+      throw new Error(data.message || "シフト取得に失敗しました");
+    }
+
+    shiftData = data.shifts || {};
+    firstMessageDiv.style.display = "none";
+    monthNavDiv.style.display = "flex";
+    generateCalendar(currentDate);
   }
 
   // =====================
@@ -1114,13 +1266,7 @@ window.onload = async function () {
           return;
         }
 
-        const dayShifts = shiftData[selectedDateStr] || [];
-        const targetShift = dayShifts.find((s) => s.id === selectedShiftId);
-
-        if (targetShift) {
-          targetShift.start = newStart;
-          targetShift.end = newEnd;
-        }
+        await reloadShifts();
 
         detailShift.textContent = `${newStart}-${newEnd}`;
         editArea.style.display = "none";
@@ -1128,7 +1274,6 @@ window.onload = async function () {
         alert(data.message || "シフトを保存しました");
 
         resultDiv.textContent = "";
-        generateCalendar(currentDate);
         detailView.style.display = "none";
         calendarView.style.display = "block";
       } catch (err) {
@@ -1181,8 +1326,7 @@ window.onload = async function () {
           return;
         }
 
-        removeSelectedShiftFromLocal();
-        generateCalendar(currentDate);
+        await reloadShifts();
 
         detailView.style.display = "none";
         calendarView.style.display = "block";
@@ -1343,6 +1487,8 @@ window.onload = async function () {
           return;
         }
 
+        await reloadShifts();
+
         alert(
           data.message ||
             "診断書の提出が完了しました。月末に確認をしているため、不正があった場合は当日欠勤に戻る可能性があります。"
@@ -1370,29 +1516,8 @@ window.onload = async function () {
       try {
         setButtonsDisabled(true);
         resultDiv.textContent = "更新中…";
-
-        const profile = await liff.getProfile();
-
-        const url =
-          GAS_URL +
-          "?action=fetch" +
-          "&userId=" + encodeURIComponent(profile.userId) +
-          "&name=" + encodeURIComponent(profile.displayName);
-
-        const data = await fetchJson(url);
-
-        if (!data.success) {
-          resultDiv.textContent = data.message || "取得に失敗しました";
-          return;
-        }
-
-        shiftData = data.shifts || {};
-
-        firstMessageDiv.style.display = "none";
-        monthNavDiv.style.display = "flex";
+        await reloadShifts();
         resultDiv.textContent = "";
-
-        generateCalendar(currentDate);
       } catch (err) {
         console.error(err);
         resultDiv.textContent = "取得エラー: " + err.message;
@@ -1419,3 +1544,5 @@ window.onload = async function () {
     });
   }
 };
+
+
