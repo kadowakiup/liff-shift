@@ -1,4 +1,4 @@
-// // // 完璧
+// // // // 完璧
 // window.onload = async function () {
 //   const calendarDiv = document.getElementById("calendar");
 //   const currentMonthSpan = document.getElementById("currentMonth");
@@ -152,6 +152,14 @@
 //     const target = getDateOnly(new Date(dateStr + "T00:00:00"));
 //     const today = getDateOnly(new Date());
 //     return target <= today;
+//   }
+
+//   function hasVisibleShiftOnDay(dayShifts) {
+//     if (!Array.isArray(dayShifts) || dayShifts.length === 0) return false;
+
+//     return dayShifts.some((shift) => {
+//       return !!getShiftDisplayText(shift);
+//     });
 //   }
 
 //   function updateDetailActionButtons(shift) {
@@ -427,6 +435,14 @@
 //     return false;
 //   }
 
+//   function handleAddShiftClick(dateStr) {
+//     alert(
+//       `${formatDateJP(dateStr)} はシフト未登録です。\n\n` +
+//       "⊕ボタンは表示されるようにしました。\n" +
+//       "新規シフト追加の登録処理を動かすには、GAS/Anycross側に追加用actionの実装が必要です。"
+//     );
+//   }
+
 //   // =====================
 //   // LIFF初期化
 //   // =====================
@@ -455,7 +471,6 @@
 //   function generateCalendar(date) {
 //     calendarDiv.innerHTML = "";
 
-//     // ===== 曜日ヘッダー =====
 //     const weekHeader = document.createElement("div");
 //     weekHeader.className = "week-header";
 
@@ -466,9 +481,8 @@
 //       cell.className = "week-cell";
 //       cell.textContent = w;
 
-//       // 土日色分け（任意）
-//       if (index === 0) cell.style.color = "#d93025"; // 日
-//       if (index === 6) cell.style.color = "#1a73e8"; // 土
+//       if (index === 0) cell.style.color = "#d93025";
+//       if (index === 6) cell.style.color = "#1a73e8";
 
 //       weekHeader.appendChild(cell);
 //     });
@@ -503,6 +517,29 @@
 //       dayDiv.appendChild(dateSpan);
 
 //       const dayShifts = shiftData[fullDateStr] || [];
+//       const hasShift = hasVisibleShiftOnDay(dayShifts);
+
+//       if (!hasShift && isTodayOrFuture(fullDateStr)) {
+//         const addBtn = document.createElement("button");
+//         addBtn.type = "button";
+//         addBtn.className = "add-shift-button";
+//         addBtn.textContent = "⊕";
+//         addBtn.style.display = "block";
+//         addBtn.style.margin = "6px auto 0";
+//         addBtn.style.fontSize = "22px";
+//         addBtn.style.lineHeight = "1";
+//         addBtn.style.border = "none";
+//         addBtn.style.background = "transparent";
+//         addBtn.style.cursor = "pointer";
+//         addBtn.style.color = "#1a73e8";
+
+//         addBtn.addEventListener("click", (e) => {
+//           e.stopPropagation();
+//           handleAddShiftClick(fullDateStr);
+//         });
+
+//         dayDiv.appendChild(addBtn);
+//       }
 
 //       dayShifts.forEach((shift) => {
 //         const displayText = getShiftDisplayText(shift);
@@ -1112,6 +1149,8 @@
 
 
 
+
+
 window.onload = async function () {
   const calendarDiv = document.getElementById("calendar");
   const currentMonthSpan = document.getElementById("currentMonth");
@@ -1275,6 +1314,10 @@ window.onload = async function () {
     });
   }
 
+  function hasAnyShiftRecordOnDay(dayShifts) {
+    return Array.isArray(dayShifts) && dayShifts.length > 0;
+  }
+
   function updateDetailActionButtons(shift) {
     const state = normalizeText(shift?.state);
     const canEditBase = hasEditableShiftTime(shift);
@@ -1359,6 +1402,12 @@ window.onload = async function () {
     if (backButton) backButton.disabled = disabled;
     if (prevMonthBtn) prevMonthBtn.disabled = disabled;
     if (nextMonthBtn) nextMonthBtn.disabled = disabled;
+
+    document.querySelectorAll(".add-shift-button").forEach((btn) => {
+      btn.disabled = disabled;
+      btn.style.pointerEvents = disabled ? "none" : "auto";
+      btn.style.opacity = disabled ? "0.5" : "1";
+    });
   }
 
   function fileToBase64(fileOrBlob) {
@@ -1548,12 +1597,63 @@ window.onload = async function () {
     return false;
   }
 
-  function handleAddShiftClick(dateStr) {
-    alert(
-      `${formatDateJP(dateStr)} はシフト未登録です。\n\n` +
-      "⊕ボタンは表示されるようにしました。\n" +
-      "新規シフト追加の登録処理を動かすには、GAS/Anycross側に追加用actionの実装が必要です。"
-    );
+  async function addShiftForDate(dateStr) {
+    const msg =
+      `${formatDateJP(dateStr)} のシフト追加申請を行います。\n\n` +
+      `よろしいですか？`;
+
+    if (!confirm(msg)) {
+      return;
+    }
+
+    try {
+      setButtonsDisabled(true);
+      resultDiv.textContent = "追加処理中…";
+
+      const profile = await liff.getProfile();
+
+      const url =
+        GAS_URL +
+        "?action=addShift" +
+        "&userId=" + encodeURIComponent(profile.userId) +
+        "&name=" + encodeURIComponent(profile.displayName) +
+        "&date=" + encodeURIComponent(dateStr);
+
+      const data = await fetchJson(url);
+
+      if (!data.success) {
+        alert(data.message || "シフト追加に失敗しました");
+        resultDiv.textContent = "";
+        return;
+      }
+
+      const reflected = await waitForShiftRefresh(() => {
+        const dayShifts = shiftData[dateStr] || [];
+        return hasAnyShiftRecordOnDay(dayShifts) || hasVisibleShiftOnDay(dayShifts);
+      }, {
+        maxAttempts: 8,
+        intervalMs: 1500,
+        loadingMessage: "シフト追加の反映待ち…"
+      });
+
+      resultDiv.textContent = "";
+
+      alert(
+        reflected
+          ? (data.message || "シフト追加が完了しました")
+          : "シフト追加の処理は完了しました。画面反映に時間がかかっているため、更新ボタンで再確認してください。"
+      );
+
+      calendarView.style.display = "block";
+      detailView.style.display = "none";
+      generateCalendar(currentDate);
+    } catch (err) {
+      console.error(err);
+      resultDiv.textContent = "";
+      alert("シフト追加中にエラーが発生しました");
+    } finally {
+      setButtonsDisabled(false);
+    }
   }
 
   // =====================
@@ -1630,7 +1730,7 @@ window.onload = async function () {
       dayDiv.appendChild(dateSpan);
 
       const dayShifts = shiftData[fullDateStr] || [];
-      const hasShift = hasVisibleShiftOnDay(dayShifts);
+      const hasShift = hasVisibleShiftOnDay(dayShifts) || hasAnyShiftRecordOnDay(dayShifts);
 
       if (!hasShift && isTodayOrFuture(fullDateStr)) {
         const addBtn = document.createElement("button");
@@ -1646,9 +1746,9 @@ window.onload = async function () {
         addBtn.style.cursor = "pointer";
         addBtn.style.color = "#1a73e8";
 
-        addBtn.addEventListener("click", (e) => {
+        addBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
-          handleAddShiftClick(fullDateStr);
+          await addShiftForDate(fullDateStr);
         });
 
         dayDiv.appendChild(addBtn);
@@ -2250,6 +2350,5 @@ window.onload = async function () {
     });
   }
 };
-
 
 
