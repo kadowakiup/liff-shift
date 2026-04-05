@@ -402,6 +402,26 @@ window.onload = async function () {
   function generateCalendar(date) {
     calendarDiv.innerHTML = "";
 
+    // ===== 曜日ヘッダー =====
+    const weekHeader = document.createElement("div");
+    weekHeader.className = "week-header";
+
+    const weekList = ["日", "月", "火", "水", "木", "金", "土"];
+
+    weekList.forEach((w, index) => {
+      const cell = document.createElement("div");
+      cell.className = "week-cell";
+      cell.textContent = w;
+
+      // 土日色分け（任意）
+      if (index === 0) cell.style.color = "#d93025"; // 日
+      if (index === 6) cell.style.color = "#1a73e8"; // 土
+
+      weekHeader.appendChild(cell);
+    });
+
+    calendarDiv.appendChild(weekHeader);
+
     const year = date.getFullYear();
     const month = date.getMonth();
 
@@ -423,17 +443,6 @@ window.onload = async function () {
 
       const dayDiv = document.createElement("div");
       dayDiv.className = "day";
-
-      const weekList = ["日", "月", "火", "水", "木", "金", "土"];
-
-      const dateObj = new Date(fullDateStr + "T00:00:00");
-      const week = weekList[dateObj.getDay()];
-
-      const weekSpan = document.createElement("div");
-      weekSpan.className = "weekday";
-      weekSpan.textContent = week;
-
-      dayDiv.appendChild(weekSpan);
 
       const dateSpan = document.createElement("span");
       dateSpan.className = "date";
