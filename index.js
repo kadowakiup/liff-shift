@@ -9,6 +9,11 @@ window.onload = async function () {
   const prevMonthBtn = document.getElementById("prevMonth");
   const nextMonthBtn = document.getElementById("nextMonth");
 
+  // 基本情報
+  const summaryDiv = document.getElementById("summary");
+  const userNameSpan = document.getElementById("userName");
+  const workTimeSpan = document.getElementById("workTime");
+
   // 詳細画面
   const calendarView = document.getElementById("calendarView");
   const detailView = document.getElementById("detailView");
@@ -39,6 +44,9 @@ window.onload = async function () {
 
   let shiftData = {};
   let currentDate = new Date();
+
+  let fetchedName = "";
+  let fetchedWorktime = "";
 
   // 選択中シフト情報
   let selectedShiftId = "";
@@ -328,6 +336,22 @@ window.onload = async function () {
     }
 
     shiftData = data.shifts || {};
+    fetchedName = data.name || "";
+    fetchedWorktime = data.worktime ?? "";
+
+    if (userNameSpan) {
+      userNameSpan.textContent = fetchedName;
+    }
+
+    if (workTimeSpan) {
+      workTimeSpan.textContent =
+        fetchedWorktime !== "" ? `${fetchedWorktime}時間` : "";
+    }
+
+    if (summaryDiv) {
+      summaryDiv.style.display = "block";
+    }
+
     firstMessageDiv.style.display = "none";
     monthNavDiv.style.display = "flex";
     generateCalendar(currentDate);
