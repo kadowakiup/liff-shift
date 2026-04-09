@@ -540,9 +540,7 @@ window.onload = async function () {
 
     // ここ！
     // ★ デバッグ用：Anycrossが返してきた本当のメッセージを画面に表示する
-    const resultDiv = document.getElementById("result");
-    resultDiv.style.color = "blue";
-    resultDiv.innerHTML = "【Anycrossの生データ】<br>" + data.anycrossRaw;
+    console.log("【GAS・Anycrossからの生データ】", data);
 
     if (!data.success) {
       throw new Error(data.message || "シフト取得に失敗しました");
