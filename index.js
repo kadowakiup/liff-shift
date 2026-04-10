@@ -1492,11 +1492,20 @@ window.onload = async function () {
 
   // シフト情報取得
   async function reloadShifts() {
-    const idToken = liff.getIDToken(); // ★身分証(トークン)を取得
-    const url = `${GAS_URL}?action=fetch&idToken=${encodeURIComponent(idToken)}&t=${Date.now()}`;
+    const idToken = liff.getIDToken(); // ここで身分証を取得
+    
+    const url = GAS_URL + 
+                "?action=fetch" + 
+                "&idToken=" + encodeURIComponent(idToken) + 
+                "&t=" + Date.now();
     
     const data = await fetchJson(url);
-    if (!data.success) throw new Error(data.message || "取得失敗");
+    console.log("GAS返却データ:", data);
+
+    if (!data.success) {
+      // もしGASがエラーを返したら、その理由（data.message）を画面に出す
+      throw new Error(data.message || "理由不明の取得失敗");
+    }
 
     shiftData = data.shifts || {};
     fetchedName = data.name || "";
