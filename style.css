@@ -75,7 +75,7 @@ body #calendarView {
   max-width: 600px;
   margin: 0 auto;
 }
-body #calendarView #summary {
+body #calendarView #summary #userName, body #calendarView #summary #workTime {
   display: flex;
   justify-content: center;
 }
@@ -83,6 +83,6 @@ body #calendarView #result {
   text-align: center;
   color: #01b6ff;
   font-weight: 700;
-  line-height: 100vh;
+  padding-top: 40px;
   font-size: 20px;
 }/*# sourceMappingURL=style.css.map */
