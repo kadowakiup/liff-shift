@@ -61,6 +61,11 @@
   box-sizing: border-box;
 }
 
+.container {
+  width: 90%;
+  margin: 0 auto;
+}
+
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans", sans-serif;
   width: 100vw;
@@ -69,6 +74,10 @@ body {
 body #calendarView {
   max-width: 600px;
   margin: 0 auto;
+}
+body #calendarView #summary {
+  display: flex;
+  justify-content: center;
 }
 body #calendarView #result {
   text-align: center;
