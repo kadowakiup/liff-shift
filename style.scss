@@ -67,7 +67,11 @@
 
 // 自分のスタイル
 body {
-  font-family: 'Noto sans', 'Hiragino', 'メイリオ';
+  font-family: 
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    "Noto Sans",
+    sans-serif;
   max-width: 600px;
   margin: 0 auto;
   .title {
