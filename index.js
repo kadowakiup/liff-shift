@@ -1503,11 +1503,11 @@ window.onload = async function () {
 
     if (!data.success) {
       // ★ ここがポイント：もし認証エラー（期限切れなど）が返ってきたら自動でログインし直す
-      if (data.message.includes("認証失敗") || data.message.includes("expired")) {
-        console.log("トークン切れのため再ログインします...");
-        liff.login(); // ログイン画面へ飛ばす（一瞬で戻ってきます）
-        return;
-      }
+      // if (data.message.includes("認証失敗") || data.message.includes("expired")) {
+      //   console.log("トークン切れのため再ログインします...");
+      //   liff.login(); // ログイン画面へ飛ばす（一瞬で戻ってきます）
+      //   return;
+      // }
       throw new Error(data.message || "取得失敗");
     }
 
