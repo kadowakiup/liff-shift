@@ -1502,12 +1502,13 @@ window.onload = async function () {
     const data = await fetchJson(url);
 
     if (!data.success) {
-      // ★ ここがポイント：もし認証エラー（期限切れなど）が返ってきたら自動でログインし直す
-      // if (data.message.includes("認証失敗") || data.message.includes("expired")) {
-      //   console.log("トークン切れのため再ログインします...");
-      //   liff.login(); // ログイン画面へ飛ばす（一瞬で戻ってきます）
-      //   return;
-      // }
+      // ★ ここで「期限切れ」を検知したら、一度だけログイン画面へ飛ばす
+      if (data.message.includes("expired") || data.message.includes("認証エラー")) {
+        alert("セッションの期限が切れました。再ログインします。");
+        liff.logout(); // 一度ログアウトして
+        liff.login();  // 再ログイン
+        return;
+      }
       throw new Error(data.message || "取得失敗");
     }
 
