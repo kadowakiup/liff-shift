@@ -72,8 +72,7 @@ body #calendarView {
 }
 body #calendarView #result {
   text-align: center;
-  padding-top: 18px;
   color: #01b6ff;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 100vh;
 }/*# sourceMappingURL=style.css.map */
