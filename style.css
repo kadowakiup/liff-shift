@@ -20,6 +20,7 @@ body #calendarView #summary {
 body #calendarView #summary #userName, body #calendarView #summary #workTime {
   display: flex;
   justify-content: center;
+  font-family: "Roboto", sans-serif;
 }
 body #calendarView #summary #userName {
   font-weight: 700;
@@ -79,8 +80,10 @@ body #calendarView #calendar .week-header {
   gap: 1px;
 }
 body #calendarView #calendar .week-header .week-cell {
-  font-size: 14px;
+  font-size: 13px;
   padding: 4px 0;
+  font-weight: 500;
+  color: #616161;
 }
 body #calendarView #calendar .day {
   outline: solid 1px #d3d3d3;
@@ -101,17 +104,20 @@ body #calendarView #calendar .day .shift-time {
   padding: 2px;
   border-radius: 3px;
   background-color: #ededed;
+  font-family: "Roboto", sans-serif;
 }
 body #calendarView #calendar .day .shift-time.state-medical {
   font-weight: 600;
   color: #00b894;
   background-color: #f0fff4;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans", sans-serif;
 }
 body #calendarView #calendar .day .shift-time.state-absent {
   font-weight: 600;
   color: #ff4d8d;
   background-color: #fff0f5;
   text-align: center;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans", sans-serif;
 }
 body #calendarView #calendar .day .add-shift-button {
   margin: 0 auto;

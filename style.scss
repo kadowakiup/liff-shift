@@ -20,6 +20,7 @@ body {
       #userName, #workTime {
         display: flex;
         justify-content: center;
+        font-family: 'Roboto', sans-serif;
       }
       #userName {
         font-weight: 700;
@@ -76,8 +77,10 @@ body {
         margin-bottom: 2px;
         gap: 1px;
         .week-cell {
-          font-size: 14px;
+          font-size: 13px;
           padding: 4px 0;
+          font-weight: 500;
+          color: #616161;
         }
       }
       .day {
@@ -98,16 +101,27 @@ body {
           padding: 2px;
           border-radius: 3px;
           background-color: #ededed;
+          font-family: 'Roboto', sans-serif;
           &.state-medical {
             font-weight: 600;
             color: #00b894;
             background-color: #f0fff4;
+            font-family: 
+              "Hiragino Kaku Gothic ProN",
+              "Hiragino Sans",
+              "Noto Sans",
+              sans-serif;
           }
           &.state-absent {
             font-weight: 600;
             color: #ff4d8d;
             background-color: #fff0f5;
             text-align: center;
+            font-family: 
+              "Hiragino Kaku Gothic ProN",
+              "Hiragino Sans",
+              "Noto Sans",
+              sans-serif;
           }
         }
         .add-shift-button {
