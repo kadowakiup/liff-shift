@@ -18,33 +18,6 @@
   font-size: 0.9em;
 }
 
-#calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-}
-
-.week-header {
-  grid-column: 1/-1;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.week-cell {
-  padding: 4px 0;
-}
-
-.day {
-  min-height: 60px;
-  border: 1px solid #ddd;
-  padding: 4px;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-
 .container {
   width: 90%;
   margin: 0 auto;
@@ -88,7 +61,7 @@ body #calendarView #monthNav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px 0 20px 0;
+  margin: 10px 0 20px 0;
 }
 body #calendarView #monthNav #currentMonth {
   font-size: 18px;
@@ -114,6 +87,22 @@ body #calendarView #calendar {
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
 }
+body #calendarView #calendar .week-header {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 2px;
+  gap: 1px;
+}
+body #calendarView #calendar .week-header .week-cell {
+  padding: 4px 0;
+}
 body #calendarView #calendar .day {
   outline: solid 1px #d3d3d3;
+  min-height: 60px;
+  padding: 4px;
+  font-size: 12px;
+  box-sizing: border-box;
 }/*# sourceMappingURL=style.css.map */
