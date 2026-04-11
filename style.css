@@ -209,6 +209,8 @@ body #detailView #medicalArea {
 }
 body #detailView #medicalArea #medicalGuide {
   padding-top: 8px;
+  line-height: 1.4em;
+  color: #333;
 }
 body #detailView #medicalArea #medicalFile {
   color: #616161;
