@@ -109,6 +109,17 @@ body {
             background-color: #fff0f5;
             text-align: center;
           }
+          .add-shift-button {
+            margin: 0 auto;
+            font-size: 22px;
+            line-height: 1;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #01b6ff;
+            pointer-events: auto;
+            opacity: 1;
+          }
         }
       }
     }
