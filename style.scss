@@ -38,7 +38,7 @@ body {
       color: #01b6ff;
     }
     .kousintyu {
-      padding-top: 160px;
+      line-height: 100vh;
       font-weight: 600;
       font-size: 20px;
     }
@@ -193,7 +193,7 @@ body {
       grid-template-columns: 50px 140px;
       grid-template-rows: 38px 38px 1fr;
       font-size: 13px;
-      padding-top: 30px;
+      padding-top: 20px;
       justify-content: center;
       gap: 12px 0;
       > p {
