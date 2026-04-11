@@ -531,22 +531,26 @@ window.onload = async function () {
     const profile = await liff.getProfile();
     const idToken = liff.getIDToken(); // ★ トークン取得
 
+    if (!idToken) throw new Error("認証トークンが取得できませんでした。再読み込みしてください。");
+
     const url =
       GAS_URL +
       "?action=fetch" +
       "&userId=" + encodeURIComponent(profile.userId) +
       "&name=" + encodeURIComponent(profile.displayName) +
-      "&idToken=" + encodeURIComponent(idToken) + // ★ 送信
+      "&idToken=" + encodeURIComponent(idToken) +
       "&t=" + Date.now();
 
     const data = await fetchJson(url);
 
     if (!data.success) {
-      // ★ 期限切れなら一度だけ自動再ログイン
-      if (data.message && (data.message.includes("セッション切れ") || data.message.includes("expired") || data.message.includes("認証エラー"))) {
-        alert("セキュリティセッションの期限が切れました。再ログインします。");
-        // ここ
-        // liff.login();
+      // セッション切れの場合、何度も自動リダイレクトしないように確認を入れるか、
+      // 明示的に logout() を挟んでから login() させるのが確実です。
+      if (data.message && (data.message.includes("セッション切れ") || data.message.includes("認証エラー"))) {
+        console.error("Security Session Expired");
+        // 外部ブラウザで頻発する場合は、一度ログアウトして再ログイン
+        liff.logout();
+        liff.login();
         return;
       }
       throw new Error(data.message || "シフト取得に失敗しました");
@@ -1222,48 +1226,56 @@ window.onload = async function () {
   // =====================
   // LIFF初期化と自動取得
   // =====================
-  try {
-    await liff.init({ liffId: "2009569390-ToBfmkCN" });
+  // index.js の初期化部分（末尾付近）を以下に差し替えてください
 
-    // resultDiv.style.color = "black";
+try {
+  // 1. LIFFの初期化
+  await liff.init({ liffId: "2009569390-ToBfmkCN" });
 
-    // ここ！
-    if (liff.isLoggedIn()) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('code')) {
-        // codeが含まれている場合、パラメータを除去したURLに置き換える（リロードはしない）
-        window.history.replaceState(null, null, window.location.pathname);
-      }
-    }
-
-    if (!liff.isLoggedIn()) {
-      resultDiv.innerHTML = "LINEログインへ移動します…";
-      liff.login({
-        redirectUri: window.location.href
-      });
-      return;
-    }
-
-    // ★ログイン済みの場合は自動で「更新」処理を走らせる
-    try {
-      setButtonsDisabled(true);
-      resultDiv.textContent = "更新中..."; // 取得中の表示
-      resultDiv.classList.add("kousintyu");
-      await reloadShifts();
-      resultDiv.textContent = "";
-    } catch (err) {
-      console.error(err);
-      resultDiv.textContent = "取得エラー: " + err.message;
-    } finally {
-      resultDiv.classList.remove("kousintyu");
-      setButtonsDisabled(false);
-    }
-
-  } catch (err) {
-    console.error(err);
-    resultDiv.textContent = "LIFF初期化エラー: " + err.message;
+  // 2. ログインチェック
+  if (!liff.isLoggedIn()) {
+    resultDiv.innerHTML = "LINEログインへ移動します…";
+    // 外部ブラウザの場合は明示的にリダイレクト先を指定
+    liff.login({ redirectUri: window.location.origin + window.location.pathname });
     return;
   }
+
+  // 3. IDトークンの取得確認
+  const idToken = liff.getIDToken();
+  if (!idToken) {
+    // ログインしているのにトークンがない場合は再ログイン
+    console.warn("ID Token is missing. Re-logging in...");
+    liff.login();
+    return;
+  }
+
+  // 4. データ取得開始
+  try {
+    setButtonsDisabled(true);
+    resultDiv.textContent = "更新中...";
+    resultDiv.classList.add("kousintyu");
+    
+    await reloadShifts();
+    
+    // 5. データ取得成功後にURLを綺麗にする（オプション）
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('code') || url.searchParams.has('state')) {
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+    
+    resultDiv.textContent = "";
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    resultDiv.textContent = "取得エラー: " + err.message;
+  } finally {
+    resultDiv.classList.remove("kousintyu");
+    setButtonsDisabled(false);
+  }
+
+} catch (err) {
+  console.error("LIFF Init Error:", err);
+  resultDiv.textContent = "LIFF初期化エラー: " + err.message;
+}
 
   // =====================
   // カレンダー生成
