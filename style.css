@@ -97,6 +97,7 @@ body #calendarView #calendar .day .date {
   font-weight: 600;
   display: block;
   margin-bottom: 2px;
+  font-family: "Roboto", sans-serif;
 }
 body #calendarView #calendar .day .shift-time {
   white-space: nowrap; /* 改行させない */
