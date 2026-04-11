@@ -1238,6 +1238,7 @@ window.onload = async function () {
     try {
       setButtonsDisabled(true);
       resultDiv.textContent = "更新中..."; // 取得中の表示
+      resultDiv.classList.add("kousintyu");
       await reloadShifts();
       resultDiv.textContent = "";
     } catch (err) {

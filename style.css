@@ -75,14 +75,27 @@ body #calendarView {
   max-width: 600px;
   margin: 0 auto;
 }
+body #calendarView #summary {
+  padding-top: 30px;
+}
 body #calendarView #summary #userName, body #calendarView #summary #workTime {
   display: flex;
   justify-content: center;
+}
+body #calendarView #summary #userName {
+  font-weight: 500;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+body #calendarView #summary #workTime {
+  color: #616161;
 }
 body #calendarView #result {
   text-align: center;
   color: #01b6ff;
   font-weight: 700;
-  padding-top: 40px;
   font-size: 20px;
+}
+body #calendarView .kousintyu {
+  padding-top: 40px;
 }/*# sourceMappingURL=style.css.map */

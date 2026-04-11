@@ -82,18 +82,29 @@ body {
     max-width: 600px;
     margin: 0 auto;
     #summary {
+      padding-top: 30px;
       #userName, #workTime {
         display: flex;
         justify-content: center;
+      }
+      #userName {
+        font-weight: 500;
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      #workTime {
+        color: #616161;
       }
     }
     #result {
       text-align: center;
       color: #01b6ff;
       font-weight: 700;
-      padding-top: 40px;
       font-size: 20px;
-    } 
+    }
+    .kousintyu {
+      padding-top: 40px;
+    }
   }
 }
 
