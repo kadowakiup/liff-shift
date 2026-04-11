@@ -1293,8 +1293,8 @@ try {
       cell.className = "week-cell";
       cell.textContent = w;
 
-      if (index === 0) cell.style.color = "#d93025";
-      if (index === 6) cell.style.color = "#1a73e8";
+      if (index === 0) cell.style.color = "#ff4d8d";
+      if (index === 6) cell.style.color = "#01b6ff";
 
       weekHeader.appendChild(cell);
     });

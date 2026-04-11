@@ -95,8 +95,12 @@ body {
           white-space: nowrap;     /* 改行させない */
           overflow: hidden;        /* はみ出た分を隠す */
           padding: 2px;
-          border-radius: 2px;
-          background-color: #d3d3d3;
+          border-radius: 3px;
+          background-color: #ededed;
+          &.state-medical {
+            color: #00b894;
+            background-color: #f0fff4;
+          }
         }
       }
     }
