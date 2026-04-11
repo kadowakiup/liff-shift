@@ -1245,6 +1245,7 @@ window.onload = async function () {
       console.error(err);
       resultDiv.textContent = "取得エラー: " + err.message;
     } finally {
+      resultDiv.classList.remove("kousintyu");
       setButtonsDisabled(false);
     }
 

@@ -77,6 +77,7 @@ body #calendarView {
 }
 body #calendarView #summary {
   padding-top: 30px;
+  margin-bottom: 20px;
 }
 body #calendarView #summary #userName, body #calendarView #summary #workTime {
   display: flex;
@@ -97,5 +98,5 @@ body #calendarView #result {
   font-size: 20px;
 }
 body #calendarView .kousintyu {
-  padding-top: 40px;
+  padding-top: 100px;
 }/*# sourceMappingURL=style.css.map */
