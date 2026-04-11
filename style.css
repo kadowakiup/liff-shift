@@ -203,4 +203,20 @@ body #detailView #editArea #saveEdit {
   color: #fff;
   border-radius: 4px;
   margin-top: 6px;
+}
+body #detailView #medicalArea {
+  font-size: 13px;
+}
+body #detailView #medicalArea #medicalGuide {
+  padding-top: 8px;
+}
+body #detailView #medicalArea #medicalFile {
+  color: #616161;
+}
+body #detailView #medicalArea #submitMedical {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #01b6ff;
+  width: 100%;
+  color: #fff;
 }/*# sourceMappingURL=style.css.map */

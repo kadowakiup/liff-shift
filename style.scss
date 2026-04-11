@@ -218,7 +218,20 @@ body {
     }
     // 診断書提出
     #medicalArea {
-
+      font-size: 13px;
+      #medicalGuide {
+        padding-top: 8px;
+      }
+      #medicalFile {
+        color: #616161;
+      }
+      #submitMedical {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #01b6ff;
+        width: 100%;
+        color: #fff;
+      }
     }
   }
 }
