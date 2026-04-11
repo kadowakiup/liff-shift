@@ -27,13 +27,6 @@
   font-size: 0.9em;
 }
 
-/* 月ナビゲーション */
-#monthNav {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -94,9 +87,23 @@ body #calendarView #summary #workTime {
 body #calendarView #result {
   text-align: center;
   color: #01b6ff;
-  font-weight: 700;
-  font-size: 20px;
 }
 body #calendarView .kousintyu {
   padding-top: 100px;
+  font-weight: 600;
+  font-size: 20px;
+}
+body #calendarView #monthNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+body #calendarView #monthNav #currentMonth {
+  font-size: 18px;
+  font-weight: 500;
+}
+body #calendarView #monthNav #prevMonth, body #calendarView #monthNav #nextMonth {
+  background-color: #fff;
+  border: none;
 }/*# sourceMappingURL=style.css.map */

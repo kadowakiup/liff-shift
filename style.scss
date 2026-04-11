@@ -27,13 +27,6 @@
   font-size: 0.9em;
 }
 
-/* 月ナビゲーション */
-#monthNav {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
 
 #calendar {
   display: grid;
@@ -100,11 +93,25 @@ body {
     #result {
       text-align: center;
       color: #01b6ff;
-      font-weight: 700;
-      font-size: 20px;
     }
     .kousintyu {
       padding-top: 100px;
+      font-weight: 600;
+      font-size: 20px;
+    }
+    #monthNav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      #currentMonth {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      #prevMonth, #nextMonth {
+        background-color: #fff;
+        border: none;
+      }
     }
   }
 }
