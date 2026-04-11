@@ -167,6 +167,23 @@ body {
     #detailShift {
       margin: 0 0 20px 0;
     }
+    &_menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      align-items: center;
+      > button {
+        color: #01b6ff;
+        display: inline-flex;
+        width: 160px;
+        padding: 8px;
+        border-radius: 6px;
+        border: 2px solid #01b6ff;
+        justify-content: center;
+        font-weight: 600;
+      }
+    }
   }
 }
 
