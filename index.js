@@ -1333,6 +1333,16 @@ try {
       const dateSpan = document.createElement("span");
       dateSpan.className = "date";
       dateSpan.textContent = day;
+
+      // === ★ここから追加：曜日に合わせて日付の色を変更 ===
+      const dayOfWeek = new Date(year, month, day).getDay();
+      if (dayOfWeek === 0) {
+        dateSpan.style.color = "#ff4d8d"; // 日曜日（赤）
+      } else if (dayOfWeek === 6) {
+        dateSpan.style.color = "#01b6ff"; // 土曜日（青）
+      }
+      // === ★ここまで追加 ===
+
       dayDiv.appendChild(dateSpan);
 
       const dayShifts = shiftData[fullDateStr] || [];
