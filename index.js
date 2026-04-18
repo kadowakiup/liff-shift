@@ -1237,7 +1237,7 @@ window.onload = async function () {
 
 try {
   // 1. LIFFの初期化
-  await liff.init({ liffId: "2009569390-ToBfmkCN" });
+  await liff.init({ liffId: "2009827198-LyTrVRFv" });
 
   // 2. ログインチェック
   if (!liff.isLoggedIn()) {
