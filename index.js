@@ -2721,7 +2721,7 @@ window.onload = async function () {
       // ★修正：ボタンクリック時の処理（別LIFFを開く）
       document.getElementById("go-register-btn").addEventListener("click", () => {
         liff.openWindow({
-          url: "https://liff.line.me/【登録用LIFFのIDをここに入れる】", // ←実際のURLに変更してください
+          url: "https://liff.line.me/2009827198-qvnHhjxl", // ←実際のURLに変更してください
           external: false // LINE内ブラウザで開く
         });
       });
