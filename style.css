@@ -21,6 +21,9 @@ body #result {
   width: 100%;
   height: 100vh;
 }
+body .teisyututyu {
+  background-color: rgba(0, 0, 0, 0.6);
+}
 body .kousintyu {
   background-color: #fff;
 }
