@@ -9,6 +9,15 @@ body {
   width: 100vw;
   height: 100vh;
 }
+body #result {
+  text-align: center;
+  color: #01b6ff;
+}
+body .kousintyu {
+  line-height: 100vh;
+  font-weight: 600;
+  font-size: 20px;
+}
 body #calendarView {
   max-width: 600px;
   margin: 0 auto;
@@ -29,15 +38,6 @@ body #calendarView #summary #userName {
 }
 body #calendarView #summary #workTime {
   color: #616161;
-}
-body #calendarView #result {
-  text-align: center;
-  color: #01b6ff;
-}
-body #calendarView .kousintyu {
-  line-height: 100vh;
-  font-weight: 600;
-  font-size: 20px;
 }
 body #calendarView #monthNav {
   display: flex;

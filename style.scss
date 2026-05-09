@@ -12,6 +12,16 @@ body {
   width: 100vw;
   height: 100vh;
 
+  #result {
+      text-align: center;
+      color: #01b6ff;
+  }
+  .kousintyu {
+    line-height: 100vh;
+    font-weight: 600;
+    font-size: 20px;
+  }
+
   // カレンダー
   #calendarView {
     max-width: 600px;
@@ -32,15 +42,6 @@ body {
       #workTime {
         color: #616161;
       }
-    }
-    #result {
-      text-align: center;
-      color: #01b6ff;
-    }
-    .kousintyu {
-      line-height: 100vh;
-      font-weight: 600;
-      font-size: 20px;
     }
     #monthNav {
       display: flex;
