@@ -13,13 +13,20 @@ body {
   height: 100vh;
 
   #result {
-      text-align: center;
-      color: #01b6ff;
-  }
-  .kousintyu {
+    text-align: center;
+    color: #01b6ff;
     line-height: 100vh;
     font-weight: 600;
     font-size: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba($color: #000000, $alpha: 0.6);
+  }
+  .kousintyu {
+    background-color: "#fff";
   }
 
   // カレンダー

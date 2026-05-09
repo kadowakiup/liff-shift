@@ -12,11 +12,18 @@ body {
 body #result {
   text-align: center;
   color: #01b6ff;
-}
-body .kousintyu {
   line-height: 100vh;
   font-weight: 600;
   font-size: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+body .kousintyu {
+  background-color: "#fff";
 }
 body #calendarView {
   max-width: 600px;
