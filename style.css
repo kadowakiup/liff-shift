@@ -198,6 +198,7 @@ body #detailView #editArea {
   padding-top: 20px;
   justify-content: center;
   gap: 12px 0;
+  z-index: 0;
 }
 body #detailView #editArea > p {
   color: #616161;
