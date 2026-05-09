@@ -22,11 +22,11 @@ body #result {
   height: 100vh;
   z-index: -100;
 }
-body .teisyututyu {
+body #result.teisyututyu {
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
 }
-body .kousintyu {
+body #result.kousintyu {
   background-color: #fff;
   z-index: 9999;
 }
