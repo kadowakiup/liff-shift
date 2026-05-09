@@ -835,6 +835,7 @@ window.onload = async function () {
         try {
           setButtonsDisabled(true);
           resultDiv.textContent = "追加処理中…";
+          resultDiv.classList.add("teisyututyu");
 
           const profile = await liff.getProfile();
           const idToken = liff.getIDToken(); // ★ 追加
@@ -872,6 +873,7 @@ window.onload = async function () {
           resultDiv.textContent = "";
         } finally {
           setButtonsDisabled(false);
+          resultDiv.classList.remove("teisyututyu");
         }
 
         return;
@@ -913,6 +915,7 @@ window.onload = async function () {
       try {
         setButtonsDisabled(true);
         resultDiv.textContent = "保存中…";
+        resultDiv.classList.add("teisyututyu");
 
         const profile = await liff.getProfile();
         const idToken = liff.getIDToken(); // ★ 追加
@@ -951,6 +954,7 @@ window.onload = async function () {
         resultDiv.textContent = "";
       } finally {
         setButtonsDisabled(false);
+        resultDiv.classList.remove("teisyututyu");
       }
     });
   }
@@ -984,6 +988,7 @@ window.onload = async function () {
       try {
         setButtonsDisabled(true);
         resultDiv.textContent = "処理中…";
+        resultDiv.classList.add("teisyututyu");
         editError.textContent = "";
 
         const profile = await liff.getProfile();
@@ -1025,6 +1030,7 @@ window.onload = async function () {
         alert("休み / 削除処理中にエラーが発生しました");
       } finally {
         setButtonsDisabled(false);
+        resultDiv.classList.remove("teisyututyu");
       }
     });
   }
@@ -1169,6 +1175,7 @@ window.onload = async function () {
 
       setButtonsDisabled(true);
       resultDiv.textContent = "提出中…";
+      resultDiv.classList.add("teisyututyu");
 
       try {
         const profile = await liff.getProfile();
@@ -1219,6 +1226,7 @@ window.onload = async function () {
         calendarView.style.display = "block";
         resetDetailState();
         setButtonsDisabled(false);
+        resultDiv.classList.remove("teisyututyu");
       }
     });
   }
