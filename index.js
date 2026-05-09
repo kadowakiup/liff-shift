@@ -1348,6 +1348,23 @@ window.onload = async function () {
 
     currentMonthSpan.textContent = `${year}年 ${month + 1}月`;
 
+    // === ★追加：先月、今月、来月以外の移動を制限 ===
+    const now = new Date();
+    // 現在の月からの差分を計算（例：今月=0, 先月=-1, 来月=1, 再来月=2）
+    const diffMonths = (year - now.getFullYear()) * 12 + (month - now.getMonth());
+
+    if (prevMonthBtn) {
+      // 先月(-1)より前に行かせない（非活性化して薄くする）
+      prevMonthBtn.disabled = diffMonths <= -1;
+      prevMonthBtn.style.opacity = diffMonths <= -1 ? "0.3" : "1";
+    }
+    if (nextMonthBtn) {
+      // 来月(1)より先に行かせない（非活性化して薄くする）
+      nextMonthBtn.disabled = diffMonths >= 1;
+      nextMonthBtn.style.opacity = diffMonths >= 1 ? "0.3" : "1";
+    }
+    // === ★ここまで ===
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDay = firstDay.getDay();
