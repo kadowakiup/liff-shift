@@ -38,6 +38,7 @@ body {
   #calendarView {
     max-width: 600px;
     margin: 0 auto;
+    z-index: 0;
     #summary {
       padding-top: 30px;
       margin-bottom: 20px;

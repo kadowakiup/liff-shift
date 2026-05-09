@@ -33,6 +33,7 @@ body .kousintyu {
 body #calendarView {
   max-width: 600px;
   margin: 0 auto;
+  z-index: 0;
 }
 body #calendarView #summary {
   padding-top: 30px;
