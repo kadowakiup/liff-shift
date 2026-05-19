@@ -1211,7 +1211,7 @@ window.onload = async function () {
 
         alert(
           data.message ||
-            "診断書の提出が完了しました。月末に確認をしているため、不正があった場合は当日欠勤に戻る可能性があります。"
+            "診断書の提出が完了しました。提出された画像は目視で確認をしています。ルールに反する場合はいかなる場合も当日欠勤に戻ります。"
         );
       } catch (err) {
         console.error("submitMedical送信エラー:", err);
