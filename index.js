@@ -662,6 +662,27 @@ window.onload = async function () {
 
     const now = new Date();
 
+    // === ★追加：当日の出勤時間を過ぎているか（早退防止）の判定 ===
+    let restrictEarlyLeave = false;
+    if (mode === "view" && originalStart) {
+      const targetDate = new Date(selectedDateStr + "T00:00:00");
+      
+      // 選択中のシフトが「今日」かどうか
+      const isToday = 
+        targetDate.getFullYear() === now.getFullYear() &&
+        targetDate.getMonth() === now.getMonth() &&
+        targetDate.getDate() === now.getDate();
+
+      if (isToday) {
+        const startDt = new Date(`${selectedDateStr}T${originalStart}:00`);
+        // 今の時間が、すでに出勤時間を過ぎているか
+        if (now > startDt) {
+          restrictEarlyLeave = true;
+        }
+      }
+    }
+    // === ★ここまで ===
+
     if (mode === "view") {
       const defaultStart = document.createElement("option");
       defaultStart.value = originalStart;
@@ -688,6 +709,7 @@ window.onload = async function () {
       endSelect.appendChild(defaultEnd);
     }
 
+    // 出勤時間のプルダウン生成
     for (const h in startRules) {
       for (const m of startRules[h]) {
         const time = `${String(h).padStart(2, "0")}:${m}`;
@@ -701,11 +723,24 @@ window.onload = async function () {
       }
     }
 
+    // 退勤時間のプルダウン生成
     for (const h in endRules) {
       for (const m of endRules[h]) {
         const time = `${String(h).padStart(2, "0")}:${m}`;
         const dt = new Date(`${selectedDateStr}T${time}:00`);
+        
+        // 過去の時間はスキップ（既存の処理）
         if (dt < now) continue;
+
+        // === ★追加：早退防止（元の退勤時間より前の時間を非表示にする） ===
+        if (restrictEarlyLeave && originalEnd) {
+          const originalEndDt = new Date(`${selectedDateStr}T${originalEnd}:00`);
+          // 生成しようとしている時間が、元の退勤時間より前ならスキップ
+          if (dt < originalEndDt) {
+            continue;
+          }
+        }
+        // === ★ここまで ===
 
         const opt = document.createElement("option");
         opt.value = time;
