@@ -1336,6 +1336,8 @@ window.onload = async function () {
       
       resultDiv.textContent = "";
     } catch (err) {
+      console.log("★ERR:", JSON.stringify(err.message));
+      console.log("★INCLUDES登録:", String(err.message).includes("登録"));
       console.error("Fetch Error:", err);
       
       // === ★修正：エラーメッセージの中に「登録」という言葉が含まれているか判定 ===
