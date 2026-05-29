@@ -1326,29 +1326,45 @@ window.onload = async function () {
     } catch (err) {
       console.error("Fetch Error:", err);
       
-      // ★修正：エラーメッセージと登録画面への遷移ボタンを動的に作成
-      resultDiv.innerHTML = `
-        <div style="text-align: center; margin-top: 20px;">
-          <p style="color: #ff4d8d; font-weight: bold; margin-bottom: 15px;">
-            取得エラー：${err.message}<br>
-            先にメニュー「登録」から自分の名前を登録してください。
-          </p>
-          <p style="font-size: 12px; margin-bottom: 15px;">
-            ※登録完了後、再度メニューからこの画面を開き直してください。
-          </p>
-          <button id="go-register-btn" style="padding: 10px 20px; background-color: #06C755; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            登録画面へ進む
-          </button>
-        </div>
-      `;
+      // === ★修正：エラーメッセージの中に「登録」という言葉が含まれているか判定 ===
+      if (err.message && err.message.includes("登録を行ってください")) {
+        // 未登録エラーの場合の表示（ボタン付き）
+        resultDiv.innerHTML = `
+          <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #ff4d8d; font-weight: bold; margin-bottom: 15px;">
+              ${err.message}
+            </p>
+            <p style="font-size: 12px; margin-bottom: 15px;">
+              ※登録完了後、再度メニューからこの画面を開き直してください。
+            </p>
+            <button id="go-register-btn" style="padding: 10px 20px; background-color: #06C755; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              登録画面へ進む
+            </button>
+          </div>
+        `;
 
-      // ★修正：ボタンクリック時の処理（別LIFFを開く）
-      document.getElementById("go-register-btn").addEventListener("click", () => {
-        liff.openWindow({
-          url: "https://liff.line.me/2009827198-qvnHhjxl", // ←実際のURLに変更してください
-          external: false // LINE内ブラウザで開く
+        // 登録画面への遷移処理
+        document.getElementById("go-register-btn").addEventListener("click", () => {
+          liff.openWindow({
+            url: "https://liff.line.me/2009827198-qvnHhjxl", // ←実際のURLに変更してください
+            external: false // LINE内ブラウザで開く
+          });
         });
-      });
+
+      } else {
+        // その他の一般的なエラーの場合（ボタンなし）
+        resultDiv.innerHTML = `
+          <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #ff4d8d; font-weight: bold; margin-bottom: 15px;">
+              取得エラーが発生しました<br>
+              <span style="font-size: 14px; font-weight: normal;">${err.message}</span>
+            </p>
+            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">
+              時間をおいて再度お試しいただくか、管理者へお問い合わせください。
+            </p>
+          </div>
+        `;
+      }
       
     } finally {
       resultDiv.classList.remove("kousintyu");
