@@ -1332,7 +1332,7 @@ window.onload = async function () {
       console.error("Fetch Error:", err);
       
       // === ★修正：エラーメッセージの中に「登録」という言葉が含まれているか判定 ===
-      if (err.message && err.message.includes("登録を行ってください")) {
+      if (err.message && err.message.includes("登録")) {
         // 未登録エラーの場合の表示（ボタン付き）
         resultDiv.innerHTML = `
           <div style="text-align: center; margin-top: 20px;">
