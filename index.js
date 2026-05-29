@@ -496,14 +496,12 @@ window.onload = async function () {
 
   // ===== ★ 休む日の前日23時判定関数 =====
   function determineDeleteOrAbsent(dateStr) {
-    const targetDate = new Date(dateStr + "T00:00:00");
-    const deadline = new Date(targetDate.getTime());
-    deadline.setDate(deadline.getDate() - 1); // 前日
-    deadline.setHours(23, 0, 0, 0);           // 23:00
+    // ターゲットの日の 00:00:00 を基準にする
+    const deadline = new Date(dateStr + "T00:00:00");
 
     const now = new Date();
-    // 現在時刻が前日23時以前なら「空白（削除）」、過ぎていれば「当欠」
-    return now <= deadline ? "deleted" : "当欠";
+    // 現在時刻が当日00時より前（＝前日の23:59まで）なら「空白（削除）」、当日00時以降なら「当欠」
+    return now < deadline ? "deleted" : "当欠";
   }
 
   // ===== ★ カレンダーの表記を更新する処理 =====
@@ -1009,12 +1007,12 @@ window.onload = async function () {
         return;
       }
 
-      // ★ 23時判定とメッセージの分岐
+      // ★ 当日00時判定とメッセージの分岐
       const actionType = determineDeleteOrAbsent(selectedDateStr);
 
       const msg = actionType === "deleted"
         ? `下記シフトを削除（空白）にします。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`
-        : `前日23時以降の申請のため、「当欠」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
+        : `当日00時以降の申請のため、「当欠」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
 
       if (!confirm(msg)) {
         return;
