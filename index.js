@@ -554,16 +554,21 @@ window.onload = async function () {
     const data = await fetchJson(url);
 
     if (!data.success) {
-      // セッション切れの場合、何度も自動リダイレクトしないように確認を入れるか、
-      // 明示的に logout() を挟んでから login() させるのが確実です。
-      if (data.message && (data.message.includes("セッション切れ") || data.message.includes("認証エラー"))) {
+      // === ★修正：GASから送られてくるAnycrossの生の返答（anycrossRaw）も確認する ===
+      let errorText = data.message || data.anycrossRaw || "シフト取得に失敗しました";
+      
+      // セッション切れの場合
+      if (errorText.includes("セッション切れ") || errorText.includes("認証エラー")) {
         console.error("Security Session Expired");
         // 外部ブラウザで頻発する場合は、一度ログアウトして再ログイン
         liff.logout();
         liff.login();
         return;
       }
-      throw new Error(data.message || "シフト取得に失敗しました");
+      
+      // ここで判定用テキストごとエラーを投げる
+      throw new Error(errorText);
+      // === ★ここまで ===
     }
 
     shiftData = data.shifts || {};
