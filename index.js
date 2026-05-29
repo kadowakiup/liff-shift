@@ -1382,7 +1382,12 @@ window.onload = async function () {
       
     } finally {
       resultDiv.classList.remove("kousintyu");
-      setButtonsDisabled(false);
+      // resultDivにボタンが入っている場合は上書きしない
+      if (!document.getElementById("go-register-btn")) {
+        setButtonsDisabled(false);
+      } else {
+        setButtonsDisabled(false); // ボタン類はfalseに戻すが、resultDivは触らない
+      }
     }
 
   } catch (err) {
