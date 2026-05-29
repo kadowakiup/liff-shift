@@ -12,23 +12,45 @@ body {
 body #result {
   text-align: center;
   color: #01b6ff;
-  line-height: 100vh;
   font-weight: 600;
   font-size: 20px;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   z-index: -100;
+  opacity: 0; /* 通常時は透明にしておく */
+  transition: opacity 0.2s; /* ふわっと表示させる */
+  /* line-heightの代わりにFlexboxでど真ん中に配置する */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* 何かしらの文字やボタン（中身）が入ったら一番手前に持ってくる */
+}
+body #result:not(:empty) {
+  z-index: 99999;
+  opacity: 1;
+  background-color: #fff; /* エラー時などは白背景にする */
+}
+body #result {
+  /* 提出中などの特別な処理の時 */
 }
 body #result.teisyututyu {
   background-color: rgba(0, 0, 0, 0.8);
-  z-index: 9999;
+  color: #fff; /* 背景が黒なので文字は白に */
+  z-index: 99999 !important;
+  /* スマホSafariのボタン突き抜けバグ対策 */
+  transform: translateZ(999px);
+  -webkit-transform: translateZ(999px);
 }
 body #result.kousintyu {
   background-color: #fff;
-  z-index: 9999;
+  z-index: 99999 !important;
+  /* スマホSafariのボタン突き抜けバグ対策 */
+  transform: translateZ(999px);
+  -webkit-transform: translateZ(999px);
 }
 body #calendarView {
   max-width: 600px;
