@@ -554,21 +554,28 @@ window.onload = async function () {
     const data = await fetchJson(url);
 
     if (!data.success) {
-      // === ★修正：GASから送られてくるAnycrossの生の返答（anycrossRaw）も確認する ===
-      let errorText = data.message || data.anycrossRaw || "シフト取得に失敗しました";
+      // messageが直接来る場合と、anycrossRawにJSONが入っている場合の両方を処理
+      let errorText = data.message || "";
       
-      // セッション切れの場合
+      if (!errorText && data.anycrossRaw) {
+        try {
+          const rawParsed = JSON.parse(data.anycrossRaw);
+          errorText = rawParsed.message || rawParsed.body?.message || data.anycrossRaw;
+        } catch (e) {
+          errorText = data.anycrossRaw;
+        }
+      }
+      
+      if (!errorText) errorText = "シフト取得に失敗しました";
+      
       if (errorText.includes("セッション切れ") || errorText.includes("認証エラー")) {
         console.error("Security Session Expired");
-        // 外部ブラウザで頻発する場合は、一度ログアウトして再ログイン
         liff.logout();
         liff.login();
         return;
       }
       
-      // ここで判定用テキストごとエラーを投げる
       throw new Error(errorText);
-      // === ★ここまで ===
     }
 
     shiftData = data.shifts || {};
