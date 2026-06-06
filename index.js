@@ -494,7 +494,6 @@ window.onload = async function () {
     return found.shift;
   }
 
-  // ===== ★ 休む日の前日23時判定関数 =====
   function determineDeleteOrAbsent(dateStr) {
     // ターゲットの日の 00:00:00 を基準にする
     const deadline = new Date(dateStr + "T00:00:00");
@@ -648,7 +647,7 @@ window.onload = async function () {
 
     const startRules = {
       12: ["00", "15", "30", "45"],
-      13: ["00", "15", "30", "45"],
+      13: ["00", "15", "30"],
       15: ["00", "15", "30", "45"],
       16: ["00", "15", "30"],
       17: ["00", "15", "30", "45"],
