@@ -84,9 +84,9 @@ window.onload = async function () {
     const tDate = targetDateObj.getDate();
     const now = new Date();
 
-    const lockDeadline = new Date(tYear, tMonth, 13, 0, 0, 0);
+    const lockDeadline = new Date(tYear, tMonth, 15, 0, 0, 0);
     // 今が15日を過ぎていて、かつ対象シフトが15〜22日なら true（ロック中）を返す
-    return now >= lockDeadline && tDate >= 13 && tDate <= 22;
+    return now >= lockDeadline && tDate >= 15 && tDate <= 22;
   }
 
   function normalizeTime(value) {
@@ -632,8 +632,8 @@ window.onload = async function () {
     const tDate = targetDateObj.getDate();
     const now = new Date();
 
-    const lockDeadline = new Date(tYear, tMonth, 13, 0, 0, 0);
-    const isLockPeriod = now >= lockDeadline && tDate >= 13 && tDate <= 22;
+    const lockDeadline = new Date(tYear, tMonth, 15, 0, 0, 0);
+    const isLockPeriod = now >= lockDeadline && tDate >= 15 && tDate <= 22;
     // ===========================================
 
     // 時間変更：15日ロックに関わらず、過去日でなければ編集可能
@@ -1490,8 +1490,8 @@ window.onload = async function () {
       const dayOfWeek = new Date(year, month, day).getDay();
       
       // === ★15日〜22日のシフト新規追加（+ボタン）ロック判定 ===
-      const lockDeadlineCalendar = new Date(year, month, 13, 0, 0, 0);
-      const isLocked = now >= lockDeadlineCalendar && day >= 13 && day <= 22;
+      const lockDeadlineCalendar = new Date(year, month, 15, 0, 0, 0);
+      const isLocked = now >= lockDeadlineCalendar && day >= 15 && day <= 22;
 
       if (nationalHolidays[fullDateStr]) {
         dateSpan.style.color = "#ff4d8d"; // 祝日
