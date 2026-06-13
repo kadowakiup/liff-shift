@@ -134,7 +134,7 @@ window.onload = async function () {
   }
 
   function isAbsentState(state) {
-    return normalizeText(state) === "当欠";
+    return normalizeText(state) === "欠勤";
   }
 
   function isMedicalSubmittedState(state) {
@@ -520,8 +520,8 @@ window.onload = async function () {
     const deadline = new Date(year, month - 1, day, 0, 0, 0);
 
     const now = new Date();
-    // 現在時刻が当日00時より前なら「空白（削除）」、当日00時以降なら「当欠」
-    return now < deadline ? "deleted" : "当欠";
+    // 現在時刻が当日00時より前なら「空白（削除）」、当日00時以降なら「欠勤」
+    return now < deadline ? "deleted" : "欠勤";
   }
 
   // ===== ★ カレンダーの表記を更新する処理 =====
@@ -538,8 +538,8 @@ window.onload = async function () {
       }
       return null;
     } else {
-      // 当欠にする
-      found.shift.state = "当欠";
+      // 欠勤にする
+      found.shift.state = "欠勤";
       found.shift.start = "";
       found.shift.end = "";
       return found.shift;
@@ -642,7 +642,7 @@ window.onload = async function () {
     // 削除：過去日不可、かつ「ロック期間(15~22日の操作)」も不可
     const showDelete = canEditBase && isTodayOrFuture(selectedDateStr) && !isLockPeriod;
 
-    // === ★変更：当欠の場合のみ診断書提出ボタンを表示する ===
+    // === ★変更：欠勤の場合のみ診断書提出ボタンを表示する ===
     const showMedical = isAbsentState(state);
 
     if (btnEdit) {
@@ -1068,7 +1068,7 @@ window.onload = async function () {
 
       const msg = actionType === "deleted"
         ? `下記シフトを削除（空白）にします。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`
-        : `当日00時以降の申請のため、「当欠」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
+        : `当日00時以降の申請のため、「欠勤」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
 
       if (!confirm(msg)) {
         return;
@@ -1128,7 +1128,7 @@ window.onload = async function () {
   // =====================
   if (btnMedical) {
     btnMedical.addEventListener("click", () => {
-      // === ★変更：当欠の場合のみ開けるようにする ===
+      // === ★変更：欠勤の場合のみ開けるようにする ===
       if (!isAbsentState(originalState)) {
         resetMedicalArea();
         return;
