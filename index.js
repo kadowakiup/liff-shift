@@ -137,6 +137,16 @@ window.onload = async function () {
     return normalizeText(state) === "欠勤";
   }
 
+  // === ★追加：早退ステータスの判定（「早退」の文字が含まれているか） ===
+  function isEarlyLeaveState(state) {
+    return normalizeText(state).includes("早退");
+  }
+
+  // === ★追加：診断書提出が可能なステータスの判定（欠勤 または 早退） ===
+  function isMedicalEligibleState(state) {
+    return isAbsentState(state) || isEarlyLeaveState(state);
+  }
+
   function isMedicalSubmittedState(state) {
     return normalizeText(state) === "診断書提出済み";
   }
@@ -154,10 +164,19 @@ window.onload = async function () {
     );
   }
 
-  function getShiftDisplayText(shift) {
+  function getShiftDisplayText(shift, viewMode = "calendar") {
     const state = normalizeText(shift?.state);
     const start = normalizeTime(shift?.start);
     const end = normalizeTime(shift?.end);
+
+    // ★追加：早退かつ時間が設定されている場合の特別表示
+    if (isEarlyLeaveState(state) && start && end) {
+      if (viewMode === "detail") {
+        return `${start}-${end} 早退`;
+      } else {
+        return `早 ${start}-${end}`;
+      }
+    }
 
     if (isSpecialState(state)) {
       return state;
@@ -551,8 +570,9 @@ window.onload = async function () {
     if (!found) return null;
 
     found.shift.state = "診断書提出済み";
-    found.shift.start = "";
-    found.shift.end = "";
+    // ★変更：早退の場合に実際に稼働した時間（start/end）まで消えてしまうのを防ぐため、空にしない
+    // found.shift.start = "";
+    // found.shift.end = "";
 
     return found.shift;
   }
@@ -643,7 +663,7 @@ window.onload = async function () {
     const showDelete = canEditBase && isTodayOrFuture(selectedDateStr) && !isLockPeriod;
 
     // === ★変更：欠勤の場合のみ診断書提出ボタンを表示する ===
-    const showMedical = isAbsentState(state);
+    const showMedical = isMedicalEligibleState(state);
 
     if (btnEdit) {
       btnEdit.style.display = showEdit ? "inline-block" : "none";
@@ -806,7 +826,8 @@ window.onload = async function () {
     originalState = normalizeText(shift.state);
 
     detailDate.textContent = formatDateJP(date);
-    detailShift.textContent = getShiftDisplayText(shift) || "表示できる情報がありません";
+    // ★変更：第2引数に "detail" を渡す
+    detailShift.textContent = getShiftDisplayText(shift, "detail") || "表示できる情報がありません";
 
     editArea.style.display = "none";
     editError.textContent = "";
@@ -1128,8 +1149,8 @@ window.onload = async function () {
   // =====================
   if (btnMedical) {
     btnMedical.addEventListener("click", () => {
-      // === ★変更：欠勤の場合のみ開けるようにする ===
-      if (!isAbsentState(originalState)) {
+      // === ★変更：欠勤 または 早退 の場合のみ開けるようにする ===
+      if (!isMedicalEligibleState(originalState)) {
         resetMedicalArea();
         return;
       }
@@ -1523,7 +1544,7 @@ window.onload = async function () {
       }
 
       dayShifts.forEach((shift) => {
-        const displayText = getShiftDisplayText(shift);
+        const displayText = getShiftDisplayText(shift, "calendar");
         if (!displayText) return;
 
         const shiftSpan = document.createElement("div");
@@ -1531,7 +1552,7 @@ window.onload = async function () {
         shiftSpan.textContent = displayText;
 
         const state = normalizeText(shift.state);
-        if (isAbsentState(state)) {
+        if (isMedicalEligibleState(state)) { // ★変更：欠勤と早退の両方にスタイルを適用
           shiftSpan.classList.add("state-absent");
         } else if (isMedicalSubmittedState(state)) {
           shiftSpan.classList.add("state-medical");
