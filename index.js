@@ -521,14 +521,15 @@ let actualStart = ""; // ★追加
     return found.shift;
   }
 
-  // ===== ★休む日の判定関数（「削除」か「欠勤」か） =====
+  // ===== ★休む日の判定関数（スマホのバグ対策済み） =====
   function determineDeleteOrAbsent(dateStr) {
     const now = new Date();
-    const target = new Date(dateStr + "T00:00:00");
     
-    const tYear = target.getFullYear();
-    const tMonth = target.getMonth(); // 0が1月、6が7月
-    const tDate = target.getDate();
+    // スマホ・LIFFのバグ対策：文字列を分割して確実にDateオブジェクトを生成する
+    const [yearStr, monthStr, dayStr] = dateStr.split("-");
+    const tYear = parseInt(yearStr, 10);
+    const tMonth = parseInt(monthStr, 10) - 1; // JSの仕様で月は0から始まるため-1
+    const tDate = parseInt(dayStr, 10);
     
     let deadline;
     const isNewRule = (tYear > 2026) || (tYear === 2026 && tMonth >= 6); // 2026年7月以降
@@ -536,20 +537,20 @@ let actualStart = ""; // ★追加
     if (isNewRule) {
       // 7月以降の固定ルール
       if (tDate >= 1 && tDate <= 10) {
-        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日
+        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日の23:59:59
       } else if (tDate >= 11 && tDate <= 20) {
-        deadline = new Date(tYear, tMonth, 10, 23, 59, 59); // 当月10日
+        deadline = new Date(tYear, tMonth, 10, 23, 59, 59); // 当月10日の23:59:59
       } else {
-        deadline = new Date(tYear, tMonth, 20, 23, 59, 59); // 当月20日
+        deadline = new Date(tYear, tMonth, 20, 23, 59, 59); // 当月20日の23:59:59
       }
     } else {
       // 6月までのルール
       if (tDate >= 15 && tDate <= 22) {
-        deadline = new Date(tYear, tMonth, 14, 23, 59, 59); // 当月14日
+        deadline = new Date(tYear, tMonth, 14, 23, 59, 59); // 当月14日の23:59:59
       } else if (tDate >= 23) {
-        deadline = new Date(tYear, tMonth, 22, 23, 59, 59); // 当月22日
+        deadline = new Date(tYear, tMonth, 22, 23, 59, 59); // 当月22日の23:59:59
       } else {
-        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日
+        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日の23:59:59
       }
     }
 
