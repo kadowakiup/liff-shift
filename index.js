@@ -1,9 +1,6 @@
-// const GAS_URL =https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec
+// const GAS_URL =https://script.google.com/macros/s/AKfycbyZr7jUDQng4W965XEDJ3DRJNnPXFv_8ucXY9D7yiiz65P7iu2M5ZIiye_ln-TVOuaI/exec
 
-// await liff.init({ liffId: 2009827198-LyTrVRFv
-
-// const lockDeadline = new Date(tYear, tMonth,
-// const isLocked = now >= lockDeadlineCalendar && day >=
+// await liff.init({ liffId: 2009569390-ToBfmkCN
 
 
 
@@ -60,7 +57,8 @@ window.onload = async function () {
   let originalStart = "";
   let originalEnd = "";
   let originalState = "";
-
+let actualStart = ""; // ★追加
+  let actualEnd = "";   // ★追加
   // 画面モード
   let detailMode = "view"; // "view" | "add"
 
@@ -76,18 +74,6 @@ window.onload = async function () {
     return String(value || "").trim();
   }
 
-  // === ★追加：シフトが15日〜22日で、かつ今が15日以降かどうかを判定する関数 ===
-  function isLockedPeriod(dateStr) {
-    const targetDateObj = new Date(dateStr + "T00:00:00");
-    const tYear = targetDateObj.getFullYear();
-    const tMonth = targetDateObj.getMonth();
-    const tDate = targetDateObj.getDate();
-    const now = new Date();
-
-    const lockDeadline = new Date(tYear, tMonth, 15, 0, 0, 0);
-    // 今が15日を過ぎていて、かつ対象シフトが15〜22日なら true（ロック中）を返す
-    return now >= lockDeadline && tDate >= 15 && tDate <= 22;
-  }
 
   function normalizeTime(value) {
     const v = normalizeText(value);
@@ -258,6 +244,8 @@ window.onload = async function () {
     originalStart = "";
     originalEnd = "";
     originalState = "";
+    actualStart = ""; // ★追加
+    actualEnd = "";   // ★追加
     detailMode = "view";
 
     if (editArea) editArea.style.display = "none";
@@ -645,24 +633,13 @@ window.onload = async function () {
     const state = normalizeText(shift?.state);
     const canEditBase = hasEditableShiftTime(shift);
 
-    // === ★追加：15日〜22日のロック期間かどうかを判定 ===
-    const targetDateObj = new Date(selectedDateStr + "T00:00:00");
-    const tYear = targetDateObj.getFullYear();
-    const tMonth = targetDateObj.getMonth();
-    const tDate = targetDateObj.getDate();
-    const now = new Date();
-
-    const lockDeadline = new Date(tYear, tMonth, 15, 0, 0, 0);
-    const isLockPeriod = now >= lockDeadline && tDate >= 15 && tDate <= 22;
-    // ===========================================
-
-    // 時間変更：15日ロックに関わらず、過去日でなければ編集可能
+    // 時間変更：過去日でなければ編集可能
     const showEdit = canEditBase && isTodayOrFuture(selectedDateStr);
 
-    // 削除：過去日不可、かつ「ロック期間(15~22日の操作)」も不可
-    const showDelete = canEditBase && isTodayOrFuture(selectedDateStr) && !isLockPeriod;
+    // 削除：過去日でなければ削除（休み）可能  ★ここからロック条件を外しました
+    const showDelete = canEditBase && isTodayOrFuture(selectedDateStr);
 
-    // === ★変更：欠勤の場合のみ診断書提出ボタンを表示する ===
+    // 欠勤の場合のみ診断書提出ボタンを表示する
     const showMedical = isMedicalEligibleState(state);
 
     if (btnEdit) {
@@ -697,7 +674,7 @@ window.onload = async function () {
 
     const startRules = {
       12: ["00", "15", "30", "45"],
-      13: ["00", "15", "30"],
+      13: ["00", "15", "30", "45"],
       15: ["00", "15", "30", "45"],
       16: ["00", "15", "30"],
       17: ["00", "15", "30", "45"],
@@ -824,7 +801,8 @@ window.onload = async function () {
     originalStart = normalizeTime(shift.start);
     originalEnd = normalizeTime(shift.end);
     originalState = normalizeText(shift.state);
-
+actualStart = shift.actualStart || ""; // ★追加
+    actualEnd = shift.actualEnd || "";     // ★追加
     detailDate.textContent = formatDateJP(date);
     // ★変更：第2引数に "detail" を渡す
     detailShift.textContent = getShiftDisplayText(shift, "detail") || "表示できる情報がありません";
@@ -1033,8 +1011,11 @@ window.onload = async function () {
           "&shiftId=" + encodeURIComponent(selectedShiftId) +
           "&date=" + encodeURIComponent(selectedDateStr) +
           "&start=" + encodeURIComponent(newStart) +
-          "&end=" + encodeURIComponent(newEnd);
-
+          "&end=" + encodeURIComponent(newEnd) +
+          "&originalStart=" + encodeURIComponent(originalStart) +
+          "&originalEnd=" + encodeURIComponent(originalEnd)+
+          "&actualStart=" + encodeURIComponent(actualStart) + // ★追加
+          "&actualEnd=" + encodeURIComponent(actualEnd);      // ★追加
         const data = await fetchJson(url);
 
         if (!data.success) {
@@ -1076,12 +1057,6 @@ window.onload = async function () {
       };
 
       if (!hasEditableShiftTime(dummyShift) || !isTodayOrFuture(selectedDateStr)) {
-        return;
-      }
-
-      // === ★追加：削除ボタンを押した瞬間のロックチェック（開きっぱなし対策） ===
-      if (isLockedPeriod(selectedDateStr)) {
-        alert("15日を過ぎたため、15日〜22日のシフトは操作できません。");
         return;
       }
 
