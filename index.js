@@ -521,14 +521,41 @@ let actualStart = ""; // ★追加
     return found.shift;
   }
 
-  // ===== ★休む日の当日00時判定関数（スマホのタイムゾーンバグ対策済み） =====
+  // ===== ★休む日の判定関数（「削除」か「欠勤」か） =====
   function determineDeleteOrAbsent(dateStr) {
-    const [year, month, day] = dateStr.split("-");
-    const deadline = new Date(year, month - 1, day, 0, 0, 0);
-
     const now = new Date();
-    // 現在時刻が当日00時より前なら「空白（削除）」、当日00時以降なら「欠勤」
-    return now < deadline ? "deleted" : "欠勤";
+    const target = new Date(dateStr + "T00:00:00");
+    
+    const tYear = target.getFullYear();
+    const tMonth = target.getMonth(); // 0が1月、6が7月
+    const tDate = target.getDate();
+    
+    let deadline;
+    const isNewRule = (tYear > 2026) || (tYear === 2026 && tMonth >= 6); // 2026年7月以降
+
+    if (isNewRule) {
+      // 7月以降の固定ルール
+      if (tDate >= 1 && tDate <= 10) {
+        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日
+      } else if (tDate >= 11 && tDate <= 20) {
+        deadline = new Date(tYear, tMonth, 10, 23, 59, 59); // 当月10日
+      } else {
+        deadline = new Date(tYear, tMonth, 20, 23, 59, 59); // 当月20日
+      }
+    } else {
+      // 6月までのルール
+      if (tDate >= 15 && tDate <= 22) {
+        deadline = new Date(tYear, tMonth, 14, 23, 59, 59); // 当月14日
+      } else if (tDate >= 23) {
+        deadline = new Date(tYear, tMonth, 22, 23, 59, 59); // 当月22日
+      } else {
+        deadline = new Date(tYear, tMonth, 0, 23, 59, 59); // 前月末日
+      }
+    }
+
+    // 現在時刻が変更締め切りを過ぎている（＝対象期間中・確定済み）なら「欠勤」
+    // 締め切り前なら「削除（空白）」
+    return now > deadline ? "欠勤" : "deleted";
   }
 
   // ===== ★ カレンダーの表記を更新する処理 =====
@@ -1062,9 +1089,10 @@ actualStart = shift.actualStart || ""; // ★追加
 
       const actionType = determineDeleteOrAbsent(selectedDateStr);
 
+      // ★ メッセージの条件文言を修正
       const msg = actionType === "deleted"
         ? `下記シフトを削除（空白）にします。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`
-        : `当日00時以降の申請のため、「欠勤」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
+        : `確定済み期間のシフトのため、「欠勤」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
 
       if (!confirm(msg)) {
         return;
