@@ -964,15 +964,11 @@ actualStart = shift.actualStart || ""; // ★追加
             return;
           }
 
-          applyLocalAddShift(selectedDateStr, start, end, data.shiftId || "");
-          rerenderCurrentMonth();
-
           alert(data.message || "シフト追加が完了しました");
 
-          detailView.style.display = "none";
-          calendarView.style.display = "block";
-          resetDetailState();
-          resultDiv.textContent = "";
+          // 画面を閉じる（LIFFブラウザ上でのみ機能します）
+          liff.closeWindow();
+
         } catch (err) {
           console.error(err);
           editError.textContent = "追加中にエラーが発生しました";
