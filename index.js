@@ -964,10 +964,17 @@ actualStart = shift.actualStart || ""; // ★追加
             return;
           }
 
+          applyLocalAddShift(selectedDateStr, start, end, data.shiftId || "");
+          rerenderCurrentMonth(); // カレンダーを再描画して追加したシフトを表示させる
+
+          // Anycrossで設定した "message" が優先して表示されます
           alert(data.message || "シフト追加が完了しました");
 
-          // 画面を閉じる（LIFFブラウザ上でのみ機能します）
-          liff.closeWindow();
+          // ★修正：liff.closeWindow(); を消し、カレンダー画面に戻る処理にする
+          detailView.style.display = "none";
+          calendarView.style.display = "block";
+          resetDetailState();
+          resultDiv.textContent = "";
 
         } catch (err) {
           console.error(err);
