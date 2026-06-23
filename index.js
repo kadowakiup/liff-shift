@@ -479,14 +479,17 @@ let actualStart = ""; // ★追加
     updateWorktimeDisplay();
   }
 
-  function applyLocalAddShift(dateStr, start, end, serverShiftId = "") {
+  // ★修正：引数に actualStart と actualEnd を受け取れるように追加
+  function applyLocalAddShift(dateStr, start, end, serverShiftId = "", actualStart = "", actualEnd = "") {
     const dayShifts = getDayShifts(dateStr);
 
     const newShift = {
       id: serverShiftId || `local-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       start: normalizeTime(start),
       end: normalizeTime(end),
-      state: ""
+      state: "",
+      actualStart: actualStart, // ★修正：受け取った確定時間を保存する
+      actualEnd: actualEnd      // ★修正：受け取った確定時間を保存する
     };
 
     dayShifts.push(newShift);
