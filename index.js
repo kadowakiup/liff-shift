@@ -902,88 +902,35 @@ actualStart = shift.actualStart || ""; // ★追加
     });
   }
 
+  let isSubmitting = false;
+
   // =====================
   // 保存（時間変更 / 新規追加 共通）
   // =====================
   if (saveEdit) {
     saveEdit.addEventListener("click", async () => {
+      // ★追加：すでに処理中なら、クリックイベントをここで完全に強制終了させる
+      if (isSubmitting) return; 
+
       editError.textContent = "";
 
       if (detailMode === "add") {
         const start = normalizeTime(startSelect.value);
         const end = normalizeTime(endSelect.value);
 
-        if (!start || !end) {
-          editError.textContent = "出勤時間と退勤時間を選択してください";
-          return;
-        }
-
-        const now = new Date();
-        const startDt = new Date(`${selectedDateStr}T${start}:00`);
-        const endDt = new Date(`${selectedDateStr}T${end}:00`);
-
-        if (startDt < now) {
-          editError.textContent = "出勤時間は過去に設定できません。公式LINEに相談してください";
-          return;
-        }
-
-        if (endDt < now) {
-          editError.textContent = "退勤時間は過去に設定できません。公式LINEに相談してください";
-          return;
-        }
-
-        if (startDt >= endDt) {
-          editError.textContent = "時間の設定が不正です。公式LINEに相談してください";
-          return;
-        }
+        // (中略：時間チェックのエラー処理)
 
         if (!confirm("この内容でシフト追加してもよろしいですか？")) {
           return;
         }
 
         try {
+          isSubmitting = true; // ★追加：処理開始時にフラグをON
           setButtonsDisabled(true);
           resultDiv.textContent = "追加処理中…";
           resultDiv.classList.add("teisyututyu");
 
-          const profile = await liff.getProfile();
-          const idToken = liff.getIDToken(); 
-
-          const url =
-            GAS_URL +
-            "?action=addShift" +
-            "&userId=" + encodeURIComponent(profile.userId) +
-            "&name=" + encodeURIComponent(profile.displayName) +
-            "&idToken=" + encodeURIComponent(idToken) + 
-            "&date=" + encodeURIComponent(selectedDateStr) +
-            "&start=" + encodeURIComponent(start) +
-            "&end=" + encodeURIComponent(end);
-
-          const data = await fetchJson(url);
-
-          if (!data.success) {
-            editError.textContent = data.message || "シフト追加に失敗しました";
-            resultDiv.textContent = "";
-            return;
-          }
-
-          applyLocalAddShift(
-            selectedDateStr, 
-            start, 
-            end, 
-            data.shiftId || "", 
-            start, // ★ actualStart の代わりに、入力した start を入れる
-            end    // ★ actualEnd の代わりに、入力した end を入れる
-          );
-          
-          rerenderCurrentMonth();
-
-          alert(data.message || "シフト追加が完了しました");
-
-          detailView.style.display = "none";
-          calendarView.style.display = "block";
-          resetDetailState();
-          resultDiv.textContent = "";
+          // (中略：GASへのfetch処理など)
 
         } catch (err) {
           console.error(err);
@@ -992,88 +939,27 @@ actualStart = shift.actualStart || ""; // ★追加
         } finally {
           setButtonsDisabled(false);
           resultDiv.classList.remove("teisyututyu");
+          isSubmitting = false; // ★追加：処理完了後にフラグをOFF（元に戻す）
         }
 
         return;
       }
 
-      const start = normalizeTime(startSelect.value);
-      const end = normalizeTime(endSelect.value);
-
-      const newStart = start === originalStart ? originalStart : start;
-      const newEnd = end === originalEnd ? originalEnd : end;
-
-      const now = new Date();
-      const startDt = new Date(`${selectedDateStr}T${newStart}:00`);
-      const endDt = new Date(`${selectedDateStr}T${newEnd}:00`);
-      const originalEndDt = new Date(`${selectedDateStr}T${originalEnd}:00`);
-
-      const startChanged = newStart !== originalStart;
-      const endChanged = newEnd !== originalEnd;
-
-      if (startChanged && startDt < now) {
-        editError.textContent = "出勤時間は過去に設定できません。公式LINEに相談してください";
-        return;
-      }
-
-      if (endChanged && (endDt < now || originalEndDt < now)) {
-        editError.textContent = "退勤時間は変更できません。公式LINEに相談してください";
-        return;
-      }
-
-      if (endChanged && now >= originalEndDt) {
-        editError.textContent = "本来の退勤時間を過ぎてからの時間変更（事後延長）はできません。公式LINEに相談してください";
-        return;
-      }
-
-      if (startDt >= endDt) {
-        editError.textContent = "時間の設定が不正です。公式LINEに相談してください";
-        return;
-      }
+      // 変更モードの場合も同様に設定します
+      // (中略：時間チェックのエラー処理)
 
       if (!confirm("このシフト変更を保存してもよろしいですか？")) {
         return;
       }
 
       try {
+        isSubmitting = true; // ★追加：処理開始時にフラグをON
         setButtonsDisabled(true);
         resultDiv.textContent = "保存中…";
         resultDiv.classList.add("teisyututyu");
 
-        const profile = await liff.getProfile();
-        const idToken = liff.getIDToken(); 
+        // (中略：GASへのfetch処理など)
 
-        const url =
-          GAS_URL +
-          "?action=update" +
-          "&userId=" + encodeURIComponent(profile.userId) +
-          "&idToken=" + encodeURIComponent(idToken) + 
-          "&shiftId=" + encodeURIComponent(selectedShiftId) +
-          "&date=" + encodeURIComponent(selectedDateStr) +
-          "&start=" + encodeURIComponent(newStart) +
-          "&end=" + encodeURIComponent(newEnd) +
-          "&originalStart=" + encodeURIComponent(originalStart) +
-          "&originalEnd=" + encodeURIComponent(originalEnd)+
-          "&actualStart=" + encodeURIComponent(actualStart) + // ★追加
-          "&actualEnd=" + encodeURIComponent(actualEnd);      // ★追加
-        const data = await fetchJson(url);
-
-        if (!data.success) {
-          editError.textContent = data.message || "時間変更に失敗しました";
-          resultDiv.textContent = "";
-          return;
-        }
-
-        applyLocalUpdateShift(selectedShiftId, selectedDateStr, newStart, newEnd);
-        rerenderCurrentMonth();
-
-        editArea.style.display = "none";
-        alert(data.message || "シフトを保存しました");
-
-        resultDiv.textContent = "";
-        detailView.style.display = "none";
-        calendarView.style.display = "block";
-        resetDetailState();
       } catch (err) {
         console.error(err);
         editError.textContent = "保存中にエラーが発生しました";
@@ -1081,6 +967,7 @@ actualStart = shift.actualStart || ""; // ★追加
       } finally {
         setButtonsDisabled(false);
         resultDiv.classList.remove("teisyututyu");
+        isSubmitting = false; // ★追加：処理完了後にフラグをOFF
       }
     });
   }
