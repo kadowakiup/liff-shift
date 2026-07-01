@@ -5,6 +5,8 @@
 
 
 window.onload = async function () {
+  let isSubmitting = false;
+  
   const calendarDiv = document.getElementById("calendar");
   const currentMonthSpan = document.getElementById("currentMonth");
   const resultDiv = document.getElementById("result");
@@ -907,8 +909,14 @@ actualStart = shift.actualStart || ""; // ★追加
   // =====================
   if (saveEdit) {
     saveEdit.addEventListener("click", async () => {
+      // ★追加：すでに処理中なら、クリックイベントをここで完全に弾く
+      if (isSubmitting) return;
+
       editError.textContent = "";
 
+      // ------------------------------------
+      // 新規追加モード
+      // ------------------------------------
       if (detailMode === "add") {
         const start = normalizeTime(startSelect.value);
         const end = normalizeTime(endSelect.value);
@@ -942,6 +950,7 @@ actualStart = shift.actualStart || ""; // ★追加
         }
 
         try {
+          isSubmitting = true; // ★追加：処理開始時にフラグをON
           setButtonsDisabled(true);
           resultDiv.textContent = "追加処理中…";
           resultDiv.classList.add("teisyututyu");
@@ -972,8 +981,8 @@ actualStart = shift.actualStart || ""; // ★追加
             start, 
             end, 
             data.shiftId || "", 
-            start, // ★ actualStart の代わりに、入力した start を入れる
-            end    // ★ actualEnd の代わりに、入力した end を入れる
+            start, 
+            end  
           );
           
           rerenderCurrentMonth();
@@ -992,11 +1001,15 @@ actualStart = shift.actualStart || ""; // ★追加
         } finally {
           setButtonsDisabled(false);
           resultDiv.classList.remove("teisyututyu");
+          isSubmitting = false; // ★追加：処理完了後にフラグをOFF
         }
 
         return;
       }
 
+      // ------------------------------------
+      // 時間変更モード
+      // ------------------------------------
       const start = normalizeTime(startSelect.value);
       const end = normalizeTime(endSelect.value);
 
@@ -1036,6 +1049,7 @@ actualStart = shift.actualStart || ""; // ★追加
       }
 
       try {
+        isSubmitting = true; // ★追加：処理開始時にフラグをON
         setButtonsDisabled(true);
         resultDiv.textContent = "保存中…";
         resultDiv.classList.add("teisyututyu");
@@ -1054,8 +1068,9 @@ actualStart = shift.actualStart || ""; // ★追加
           "&end=" + encodeURIComponent(newEnd) +
           "&originalStart=" + encodeURIComponent(originalStart) +
           "&originalEnd=" + encodeURIComponent(originalEnd)+
-          "&actualStart=" + encodeURIComponent(actualStart) + // ★追加
-          "&actualEnd=" + encodeURIComponent(actualEnd);      // ★追加
+          "&actualStart=" + encodeURIComponent(actualStart) + 
+          "&actualEnd=" + encodeURIComponent(actualEnd); 
+          
         const data = await fetchJson(url);
 
         if (!data.success) {
@@ -1081,6 +1096,7 @@ actualStart = shift.actualStart || ""; // ★追加
       } finally {
         setButtonsDisabled(false);
         resultDiv.classList.remove("teisyututyu");
+        isSubmitting = false; // ★追加：処理完了後にフラグをOFF
       }
     });
   }
