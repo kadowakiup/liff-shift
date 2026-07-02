@@ -59,8 +59,9 @@ window.onload = async function () {
   let originalStart = "";
   let originalEnd = "";
   let originalState = "";
-let actualStart = ""; // ★追加
-  let actualEnd = "";   // ★追加
+  let actualStart = "";
+  let actualEnd = "";
+  let originalHasMedicalCert = false;
   // 画面モード
   let detailMode = "view"; // "view" | "add"
 
@@ -246,13 +247,18 @@ let actualStart = ""; // ★追加
     originalStart = "";
     originalEnd = "";
     originalState = "";
-    actualStart = ""; // ★追加
-    actualEnd = "";   // ★追加
+    actualStart = "";
+    actualEnd = "";
+    originalHasMedicalCert = false; // ★追加
     detailMode = "view";
 
     if (editArea) editArea.style.display = "none";
     if (editError) editError.textContent = "";
     resetMedicalArea();
+
+    // ★追加：却下メッセージを非表示に戻す
+    const rejectedMsgElem = document.getElementById("medicalRejectedMsg");
+    if (rejectedMsgElem) rejectedMsgElem.style.display = "none";
   }
 
   function setButtonsDisabled(disabled) {
@@ -669,31 +675,55 @@ let actualStart = ""; // ★追加
     // 時間変更：過去日でなければ編集可能
     const showEdit = canEditBase && isTodayOrFuture(selectedDateStr);
 
-    // 削除：過去日でなければ削除（休み）可能  ★ここからロック条件を外しました
+    // 削除：過去日でなければ削除可能
     const showDelete = canEditBase && isTodayOrFuture(selectedDateStr);
 
-    // 欠勤の場合のみ診断書提出ボタンを表示する
-    const showMedical = isMedicalEligibleState(state);
-
-    if (btnEdit) {
-      btnEdit.style.display = showEdit ? "inline-block" : "none";
+    // === ★追加：却下メッセージ用のHTML要素を動的に生成する ===
+    let rejectedMsgElem = document.getElementById("medicalRejectedMsg");
+    if (!rejectedMsgElem && btnMedical && btnMedical.parentNode) {
+      rejectedMsgElem = document.createElement("p");
+      rejectedMsgElem.id = "medicalRejectedMsg";
+      rejectedMsgElem.style.color = "#ff4d8d"; // 注意を引く色（LIFFのメインカラーに合わせています）
+      rejectedMsgElem.style.fontWeight = "bold";
+      rejectedMsgElem.style.fontSize = "14px";
+      rejectedMsgElem.style.marginTop = "10px";
+      rejectedMsgElem.style.display = "none";
+      btnMedical.parentNode.insertBefore(rejectedMsgElem, btnMedical.nextSibling);
     }
 
-    if (btnDelete) {
-      btnDelete.style.display = showDelete ? "inline-block" : "none";
+    // === ★変更：診断書提出ボタンと却下メッセージの表示ロジック ===
+    let showMedical = false;
+    let showRejectedMessage = false;
+
+    // 「欠勤」または「早退」の場合
+    if (isMedicalEligibleState(state)) {
+      if (shift.hasMedicalCert) {
+        // すでに診断書データがあるのにステータスが早退・欠勤のまま = 却下された
+        showRejectedMessage = true;
+      } else {
+        // 未提出の場合はボタンを表示
+        showMedical = true;
+      }
     }
 
-    if (btnMedical) {
-      btnMedical.style.display = showMedical ? "inline-block" : "none";
+    if (btnEdit) btnEdit.style.display = showEdit ? "inline-block" : "none";
+    if (btnDelete) btnDelete.style.display = showDelete ? "inline-block" : "none";
+    if (btnMedical) btnMedical.style.display = showMedical ? "inline-block" : "none";
+
+    // ★追加：却下メッセージの表示切替
+    if (rejectedMsgElem) {
+      if (showRejectedMessage) {
+        rejectedMsgElem.textContent = "診断書が条件に合わないため却下されました";
+        rejectedMsgElem.style.display = "block";
+      } else {
+        rejectedMsgElem.style.display = "none";
+        rejectedMsgElem.textContent = "";
+      }
     }
 
     if (!showEdit) {
-      if (editArea) {
-        editArea.style.display = "none";
-      }
-      if (editError) {
-        editError.textContent = "";
-      }
+      if (editArea) editArea.style.display = "none";
+      if (editError) editError.textContent = "";
     }
 
     if (!showMedical) {
@@ -834,10 +864,11 @@ let actualStart = ""; // ★追加
     originalStart = normalizeTime(shift.start);
     originalEnd = normalizeTime(shift.end);
     originalState = normalizeText(shift.state);
-actualStart = shift.actualStart || ""; // ★追加
-    actualEnd = shift.actualEnd || "";     // ★追加
+    actualStart = shift.actualStart || ""; 
+    actualEnd = shift.actualEnd || ""; 
+    originalHasMedicalCert = shift.hasMedicalCert || false; // ★追加
+
     detailDate.textContent = formatDateJP(date);
-    // ★変更：第2引数に "detail" を渡す
     detailShift.textContent = getShiftDisplayText(shift, "detail") || "表示できる情報がありません";
 
     editArea.style.display = "none";
