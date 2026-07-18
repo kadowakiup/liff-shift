@@ -126,9 +126,17 @@ window.onload = async function () {
     return normalizeText(state) === "欠勤";
   }
 
-  // === ★追加：早退ステータスの判定（「早退」の文字が含まれているか） ===
+  // === ★追加：早退ステータスの判定 ===
   function isEarlyLeaveState(state) {
-    return normalizeText(state).includes("早退");
+    const s = normalizeText(state);
+    // 「診断書提出」が含まれている場合は除外する
+    return s.includes("早退") && !s.includes("診断書提出");
+  }
+
+  // === ★新規追加：早退かつ診断書提出済みの判定 ===
+  function isEarlyLeaveMedicalSubmitted(state) {
+    const s = normalizeText(state);
+    return s.includes("早退") && s.includes("診断書提出");
   }
 
   // === ★追加：診断書提出が可能なステータスの判定（欠勤 または 早退） ===
@@ -167,6 +175,15 @@ window.onload = async function () {
       }
     }
 
+    // ★新規追加：早退で診断書提出済みの場合の特別表示
+    if (isEarlyLeaveMedicalSubmitted(state) && start && end) {
+      if (viewMode === "detail") {
+        return `${start}-${end} 早退：診断書提出`;
+      } else {
+        return `済 ${start}-${end}`;
+      }
+    }
+
     if (isSpecialState(state)) {
       return state;
     }
@@ -182,6 +199,11 @@ window.onload = async function () {
     const state = normalizeText(shift?.state);
     const start = normalizeTime(shift?.start);
     const end = normalizeTime(shift?.end);
+
+    // ★追加：早退で診断書提出済みの場合は編集不可（ボタンを非表示にする）
+    if (isEarlyLeaveMedicalSubmitted(state)) {
+      return false;
+    }
 
     return !isSpecialState(state) && !!start && !!end;
   }
@@ -596,10 +618,14 @@ window.onload = async function () {
     const found = findShiftById(shiftId);
     if (!found) return null;
 
-    found.shift.state = "診断書提出済み";
-    // ★変更：早退の場合に実際に稼働した時間（start/end）まで消えてしまうのを防ぐため、空にしない
-    // found.shift.start = "";
-    // found.shift.end = "";
+    const currentState = normalizeText(found.shift.state);
+    
+    // ★変更：早退だった場合は「早退：診断書提出」にする
+    if (isEarlyLeaveState(currentState)) {
+      found.shift.state = "早退：診断書提出";
+    } else {
+      found.shift.state = "診断書提出済み";
+    }
 
     return found.shift;
   }
@@ -1613,9 +1639,10 @@ window.onload = async function () {
         shiftSpan.textContent = displayText;
 
         const state = normalizeText(shift.state);
-        if (isMedicalEligibleState(state)) { // ★変更：欠勤と早退の両方にスタイルを適用
+        if (isMedicalEligibleState(state)) { 
           shiftSpan.classList.add("state-absent");
-        } else if (isMedicalSubmittedState(state)) {
+        } else if (isMedicalSubmittedState(state) || isEarlyLeaveMedicalSubmitted(state)) {
+          // ★追加：早退の診断書提出済みも、欠勤の提出済みと同じ色（クラス）を適用
           shiftSpan.classList.add("state-medical");
         }
 
