@@ -1339,6 +1339,7 @@ window.onload = async function () {
       try {
         const profile = await liff.getProfile();
         const idToken = liff.getIDToken();
+        const targetType = isEarlyLeaveState(originalState) ? "早退" : "欠勤";
 
         const formBody = new URLSearchParams({
           action: "submitMedical",
@@ -1349,6 +1350,7 @@ window.onload = async function () {
           date: selectedDateStr,
           start: originalStart,
           end: originalEnd,
+          targetType: targetType, // ★追加：判定結果を含める
           fileName: medicalFileObj.name,
           mimeType: medicalFileObj.type,
           imageBase64: medicalImageBase64
