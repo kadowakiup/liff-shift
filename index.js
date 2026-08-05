@@ -1181,12 +1181,12 @@ window.onload = async function () {
 
       let actionType = determineDeleteOrAbsent(selectedDateStr);
 
-      // ★原因特定のための確認用アラート（問題が解決したら消します）
-      alert("選択している日: " + selectedDateStr + "\n取得した採用日: " + saiyoDate);
+      // === ★修正：操作している「今日」が「採用日」かどうかを判定 ===
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-      // === ★追加：採用日の操作ならペナルティ免除（常に削除にする） ===
-      if (selectedDateStr === saiyoDate) {
-        actionType = "deleted";
+      if (todayStr === saiyoDate) {
+        actionType = "deleted"; // 採用日当日の操作ならペナルティ免除
       }
       // ==========================================================
 
