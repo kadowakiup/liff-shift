@@ -1117,7 +1117,9 @@ window.onload = async function () {
           const idToken = liff.getIDToken(); 
           
           // === ★追加：採用日かどうかの判定結果を文字列で用意 ===
-          const isSaiyoStr = (selectedDateStr === saiyoDate) ? "true" : "false";
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+          const isSaiyoStr = (todayStr === saiyoDate) ? "true" : "false";
 
           const url =
             GAS_URL +
