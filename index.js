@@ -1180,11 +1180,16 @@ window.onload = async function () {
       }
 
       let actionType = determineDeleteOrAbsent(selectedDateStr);
+
+      // ★原因特定のための確認用アラート（問題が解決したら消します）
+      alert("選択している日: " + selectedDateStr + "\n取得した採用日: " + saiyoDate);
+
+      // === ★追加：採用日の操作ならペナルティ免除（常に削除にする） ===
       if (selectedDateStr === saiyoDate) {
         actionType = "deleted";
       }
+      // ==========================================================
 
-      // ★ メッセージの条件文言を修正
       const msg = actionType === "deleted"
         ? `下記シフトを削除（空白）にします。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`
         : `確定済み期間のシフトのため、「欠勤」となります。\n\n${formatDateJP(selectedDateStr)}\n${originalStart}-${originalEnd}\n\nよろしいですか？`;
