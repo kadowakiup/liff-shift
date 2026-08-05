@@ -1108,27 +1108,31 @@ window.onload = async function () {
       }
 
       try {
-        isSubmitting = true; // ★追加：処理開始時にフラグをON
-        setButtonsDisabled(true);
-        resultDiv.textContent = "保存中…";
-        resultDiv.classList.add("teisyututyu");
+          isSubmitting = true;
+          setButtonsDisabled(true);
+          resultDiv.textContent = "保存中…";
+          resultDiv.classList.add("teisyututyu");
 
-        const profile = await liff.getProfile();
-        const idToken = liff.getIDToken(); 
+          const profile = await liff.getProfile();
+          const idToken = liff.getIDToken(); 
+          
+          // === ★追加：採用日かどうかの判定結果を文字列で用意 ===
+          const isSaiyoStr = (selectedDateStr === saiyoDate) ? "true" : "false";
 
-        const url =
-          GAS_URL +
-          "?action=update" +
-          "&userId=" + encodeURIComponent(profile.userId) +
-          "&idToken=" + encodeURIComponent(idToken) + 
-          "&shiftId=" + encodeURIComponent(selectedShiftId) +
-          "&date=" + encodeURIComponent(selectedDateStr) +
-          "&start=" + encodeURIComponent(newStart) +
-          "&end=" + encodeURIComponent(newEnd) +
-          "&originalStart=" + encodeURIComponent(originalStart) +
-          "&originalEnd=" + encodeURIComponent(originalEnd)+
-          "&actualStart=" + encodeURIComponent(actualStart) + 
-          "&actualEnd=" + encodeURIComponent(actualEnd); 
+          const url =
+            GAS_URL +
+            "?action=update" +
+            "&userId=" + encodeURIComponent(profile.userId) +
+            "&idToken=" + encodeURIComponent(idToken) + 
+            "&shiftId=" + encodeURIComponent(selectedShiftId) +
+            "&date=" + encodeURIComponent(selectedDateStr) +
+            "&start=" + encodeURIComponent(newStart) +
+            "&end=" + encodeURIComponent(newEnd) +
+            "&originalStart=" + encodeURIComponent(originalStart) +
+            "&originalEnd=" + encodeURIComponent(originalEnd)+
+            "&actualStart=" + encodeURIComponent(actualStart) + 
+            "&actualEnd=" + encodeURIComponent(actualEnd) +
+            "&isSaiyo=" + encodeURIComponent(isSaiyoStr); // ★追加
           
         const data = await fetchJson(url);
 
@@ -1176,6 +1180,9 @@ window.onload = async function () {
       }
 
       const actionType = determineDeleteOrAbsent(selectedDateStr);
+      if (selectedDateStr === saiyoDate) {
+        actionType = "deleted";
+      }
 
       // ★ メッセージの条件文言を修正
       const msg = actionType === "deleted"
