@@ -1179,7 +1179,7 @@ window.onload = async function () {
         return;
       }
 
-      const actionType = determineDeleteOrAbsent(selectedDateStr);
+      let actionType = determineDeleteOrAbsent(selectedDateStr);
       if (selectedDateStr === saiyoDate) {
         actionType = "deleted";
       }
