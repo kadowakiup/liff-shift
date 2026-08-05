@@ -52,6 +52,7 @@ window.onload = async function () {
 
   let fetchedName = "";
   let nationalHolidays = {}; // ★追加：祝日データを保存する変数
+  let saiyoDate = "";
 
   // 選択中シフト情報
   let selectedShiftId = "";
@@ -672,6 +673,7 @@ window.onload = async function () {
 
     shiftData = data.shifts || {};
     fetchedName = data.name || "";
+    saiyoDate = data.saiyo || "";
 
     if (userNameSpan) {
       userNameSpan.textContent = fetchedName;
