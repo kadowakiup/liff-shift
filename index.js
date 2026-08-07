@@ -44,10 +44,10 @@ window.onload = async function () {
   const medicalError = document.getElementById("medicalError");
   const submitMedical = document.getElementById("submitMedical");
 
-  // const GAS_URL =
-  //   "https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec";
-  const GAS_URL = "https://your-shift-worker.your-subdomain.workers.dev/";
-  
+  const GAS_URL =
+    "https://script.google.com/macros/s/AKfycbwNi1gTg9is9-NpP51wAhH2qocLhCmdxDxc1fJSpodsWapo2-25oldV3RetjbxWMIey0A/exec";
+  // const GAS_URL = "https://your-shift-worker.your-subdomain.workers.dev/";
+
   let shiftData = {};
   let currentDate = new Date();
 
